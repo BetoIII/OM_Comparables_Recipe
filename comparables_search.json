@@ -2,7 +2,7 @@
     "version": "1.0.0",
     "title": "Commercial Real Estate OM Comparables Extraction",
     "description": "Extract market comparable properties and units from Offering Memorandum documents, including rent surveys and market data from the comparables/market analysis section",
-    "instructions": "Analyze one or more Offering Memorandum (OM) documents in batch and extract all comparable properties listed in the 'Market Comparables', 'Competitive Set', 'Market Analysis', or similar sections. For each comparable property, extract detailed information about the property itself and any individual units mentioned. Also capture when the rent survey or market analysis was conducted if this information is available.\n\nBATCH PROCESSING:\n- Process all provided PDF files: {{ document_paths }}\n- Extract comparables from each document independently\n- Aggregate all results into a single JSON output\n- Track which comparables came from which source document\n- Provide summary statistics across all documents processed\n\nHTML GENERATION (REQUIRED FINAL STEP):\nAfter creating the structured JSON output, generate an HTML report with the following specifications:\n\n1. CREATE A MODERN, RESPONSIVE HTML PAGE with:\n   - Clean, professional styling using CSS\n   - A header section showing summary statistics (total properties, total units, documents processed)\n   - A card-based layout displaying each comparable property\n\n2. EACH PROPERTY CARD MUST DISPLAY:\n   - Property name (as card title/header)\n   - Complete address\n   - Property details: type, year built, units count, occupancy rate, distance from subject\n   - Amenities list (if any)\n   - Units table showing: unit type, square feet, rent amount, rent per SF\n   - Source document reference\n   - Any additional notes\n\n3. STYLING REQUIREMENTS:\n   - Use a card-based grid layout (responsive, 1-3 columns depending on screen size)\n   - Color-coded cards or badges for property types\n   - Tables for unit data with alternating row colors\n   - Highlight key metrics (occupancy rate, rent per SF)\n   - Include hover effects on cards\n   - Mobile-friendly responsive design\n\n4. SAVE THE HTML FILE as 'comparables_report.html' in the same directory as the JSON output\n\n5. The HTML should be self-contained (all CSS inline or in <style> tags, no external dependencies). Be sure to include a hyperlink of the newly created html file in your response.",
+    "instructions": "Analyze one or more Offering Memorandum (OM) documents in batch and extract all comparable properties listed in the 'Market Comparables', 'Competitive Set', 'Market Analysis', or similar sections. For each comparable property, extract detailed information about the property itself and any individual units mentioned. Also capture when the rent survey or market analysis was conducted if this information is available.\n\nBATCH PROCESSING:\n- Process all provided PDF files: {{ document_paths }}\n- Extract comparables from each document independently\n- Aggregate all results into a single JSON output\n- Track which comparables came from which source document\n- Provide summary statistics across all documents processed\n- Save the structured data as 'output/comparables_data.json' (use this exact path in the output/ directory)\n\nHTML REPORT GENERATION (CONDITIONAL):\nIf the generate_html parameter is set to 'true' (default), after successfully creating the JSON output:\n1. MANUALLY generate the HTML report directly in this recipe execution\n2. Read the output/comparables_data.json file\n3. Read the sample_html_template.html for styling reference\n4. Create a self-contained HTML file at output/comparables_report.html with:\n   - Summary statistics dashboard\n   - Interactive property cards in responsive grid\n   - Unit mix tables for each property\n   - Comp set management toolbar (checkboxes, dropdown, save button)\n   - JavaScript for interactivity and server communication\n5. Return both the JSON data file path and the HTML report file path as clickable hyperlinks\n\nIf generate_html is 'false', only create and return the JSON data file.",
     "extensions": [
       {
         "name": "developer",
@@ -29,7 +29,7 @@
         "description": "Read large and complex PDF documents"
       }
     ],
-    "prompt": "Please review these documents which are Offering Memoranda (OMs) used in commercial real estate transactions: {{ document_paths }}\n\nLook for sections titled: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey', or similar variations.\n\nThe subject property (being marketed) should NOT be included in the comparables list.\n\nRent values may be presented as monthly or annual figures - capture as provided.\n\nProperties may include multifamily residential, office, retail, or industrial assets.\n\nBATCH PROCESSING NOTES:\n- Each PDF should be processed independently first\n- Track which document each comparable came from using the source_document field\n- Deduplicate properties that appear in multiple OMs (keep all instances but note duplicates in summary)\n- Aggregate statistics across all documents in the summary section\n- If processing fails for one document, continue with others and note the failure in issues_encountered",
+    "prompt": "Please review these documents which are Offering Memoranda (OMs) used in commercial real estate transactions: {{ document_paths }}\n\nGenerate HTML Report: {{ generate_html }}\n\nLook for sections titled: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey', or similar variations.\n\nThe subject property (being marketed) should NOT be included in the comparables list.\n\nRent values may be presented as monthly or annual figures - capture as provided.\n\nProperties may include multifamily residential, office, retail, or industrial assets.\n\nBATCH PROCESSING NOTES:\n- Each PDF should be processed independently first\n- Track which document each comparable came from using the source_document field\n- Deduplicate properties that appear in multiple OMs (keep all instances but note duplicates in summary)\n- Aggregate statistics across all documents in the summary section\n- If processing fails for one document, continue with others and note the failure in issues_encountered\n- Save the JSON output as 'output/comparables_data.json' (use this exact path in the output/ directory)\n\nHTML GENERATION:\n- If generate_html parameter is 'true', generate the HTML report DIRECTLY after creating the JSON at output/comparables_data.json\n- Use the sample_html_template.html file as a reference for styling and structure\n- Create output/comparables_report.html with all data embedded\n- If generate_html is 'false', skip HTML generation and only return the JSON file path",
     "response": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -269,6 +269,13 @@
         "description": "Array of file paths to the Offering Memorandum PDF documents to process (e.g. /path/to/document1.pdf, /path/to/document2.pdf)",
         "input_type": "string",
         "requirement": "required"
+      },
+      {
+        "key": "generate_html",
+        "description": "Whether to generate an interactive HTML report after data extraction (true/false). Default is true.",
+        "input_type": "string",
+        "requirement": "optional",
+        "default": "true"
       }
     ],
     "settings": {
@@ -282,14 +289,10 @@
       "checks": [
         {
           "type": "shell",
-          "command": "test -f comparables_report.html && test -s comparables_report.html"
-        },
-        {
-          "type": "shell",
-          "command": "test -f comparables_data.json && test -s comparables_data.json"
+          "command": "test -f output/comparables_data.json && test -s output/comparables_data.json"
         }
       ],
-      "on_failure": "echo 'Retry failed. Missing or empty output files. HTML report or JSON data not generated.'"
+      "on_failure": "echo 'Retry failed. Missing or empty output/comparables_data.json file. Note: HTML generation is conditional based on generate_html parameter.'"
     }
   }
   

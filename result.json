@@ -1,0 +1,179 @@
+✅ Successfully generated HTML viewer!
+📁 Comp Set: sa-downtown
+📊 Total Properties: 4
+✅ Properties with Full Data: 4
+⚠️  Properties with Missing Data: 0
+🌐 HTML File: output/view_comp_set_sa-downtown.html
+
+🚀 Open the HTML file in your browser to view the interactive comp set!
+💡 Make sure the server is running (node server.js) to use editing features.
+{
+  "comp_set_name": "sa-downtown",
+  "comp_set_properties": [
+    {
+      "property_id": "comp_002",
+      "name": "Cadillac Lofts",
+      "address": "317 Lexington Ave, 78215",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78215",
+      "neighborhood": "North Downtown",
+      "year_built": 1999,
+      "total_units": 157,
+      "vacancy_rate": 8.3,
+      "distance_to_subject": "3.3 mi",
+      "distance_reference": "1504-1508 Roosevelt",
+      "comparable_group": "Closer to 1400 E Commerce",
+      "source_document": "Offering Memorandum (OM) - 207 Omaha St.pdf",
+      "notable_amenities": [
+        "Pet Friendly",
+        "Pool"
+      ],
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": 1034,
+          "sqft": 614,
+          "rent_per_sqft": 1.7
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": 1203,
+          "sqft": 755,
+          "rent_per_sqft": 1.59
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": 1646,
+          "sqft": 1107,
+          "rent_per_sqft": 1.5
+        }
+      ]
+    },
+    {
+      "property_id": "comp_004",
+      "name": "120 Ninth Street",
+      "address": "120 9th St, 78215",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78215",
+      "neighborhood": "North Downtown",
+      "year_built": 2018,
+      "total_units": 220,
+      "vacancy_rate": 2.7,
+      "distance_to_subject": "3.5 mi",
+      "distance_reference": "1504-1508 Roosevelt",
+      "comparable_group": "Closer to 1400 E Commerce",
+      "source_document": "Offering Memorandum (OM) - 207 Omaha St.pdf",
+      "notable_amenities": [
+        "Riverside pool",
+        "Sky lounge"
+      ],
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": null,
+          "sqft": null,
+          "rent_per_sqft": null
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": 1763,
+          "sqft": 811,
+          "rent_per_sqft": 2.17
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": 2022,
+          "sqft": 1032,
+          "rent_per_sqft": 1.96
+        }
+      ]
+    },
+    {
+      "property_id": "comp_011",
+      "name": "MELA Luxury Apartments",
+      "address": "1507 Mission Rd, 78210",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78210",
+      "neighborhood": "Riverside",
+      "year_built": 1997,
+      "total_units": 360,
+      "vacancy_rate": 5.6,
+      "distance_to_subject": "0.6 mi",
+      "distance_reference": "1504-1508 Roosevelt",
+      "comparable_group": "Closer to 1504-1508 Roosevelt",
+      "source_document": "Offering Memorandum (OM) - 207 Omaha St.pdf",
+      "notable_amenities": [
+        "Garden-style"
+      ],
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": 1049,
+          "sqft": 530,
+          "rent_per_sqft": 1.98
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": 1216,
+          "sqft": 733,
+          "rent_per_sqft": 1.66
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": 1574,
+          "sqft": 1035,
+          "rent_per_sqft": 1.52
+        }
+      ]
+    },
+    {
+      "property_id": "comp_012",
+      "name": "Southtown Flats",
+      "address": "111 Probandt St, 78204",
+      "city": "San Antonio",
+      "state": "TX",
+      "zip": "78204",
+      "neighborhood": "Lone Star",
+      "year_built": 2016,
+      "total_units": 229,
+      "vacancy_rate": 5.2,
+      "distance_to_subject": "1.6 mi",
+      "distance_reference": "1504-1508 Roosevelt",
+      "comparable_group": "Closer to 1504-1508 Roosevelt",
+      "source_document": "Offering Memorandum (OM) - 207 Omaha St.pdf",
+      "notable_amenities": [
+        "Pet friendly; No weight restrictions"
+      ],
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": 1067,
+          "sqft": 548,
+          "rent_per_sqft": 1.94
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": 1491,
+          "sqft": 751,
+          "rent_per_sqft": 1.97
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": 1988,
+          "sqft": 1190,
+          "rent_per_sqft": 1.66
+        }
+      ]
+    }
+  ],
+  "html_file_path": "output/view_comp_set_sa-downtown.html",
+  "properties_with_missing_data": [],
+  "summary": {
+    "total_properties": 4,
+    "properties_with_full_data": 4,
+    "properties_with_missing_data": 0
+  }
+}
