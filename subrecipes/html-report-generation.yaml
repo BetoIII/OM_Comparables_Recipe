@@ -1,0 +1,151 @@
+version: "1.0.0"
+title: "OM Comparables HTML Report Generator"
+description: "Generate interactive HTML report from OM comparables JSON data with comp set management features"
+
+instructions: |
+  You are a web developer creating a professional, interactive property comparison report.
+
+  Generate a modern, responsive HTML report from the comparable properties data provided.
+  Use the HTML template reference as your guide for structure, styling, and interactive features.
+
+  IMPORTANT: The generated HTML must be self-contained with all CSS and JavaScript inline.
+  Do not use external dependencies or libraries.
+
+parameters:
+  - key: data_file_path
+    input_type: string
+    requirement: required
+    description: "Path to comparables_data.json containing extracted property data"
+
+  - key: template_path
+    input_type: string
+    requirement: optional
+    default: "/Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe/sample_html_template.html"
+    description: "Path to HTML template reference file for styling and structure guidance"
+
+  - key: output_file_name
+    input_type: string
+    requirement: optional
+    default: "comparables_report.html"
+    description: "Name for the generated HTML file (will be saved in output/ directory)"
+
+extensions:
+  - name: developer
+    type: builtin
+    display_name: Developer
+    timeout: 300
+    bundled: true
+    description: "Read files, write output, and manage file system operations"
+
+prompt: |
+  Generate an interactive HTML report from the comparable properties data.
+
+  DATA SOURCE: {{ data_file_path }}
+  TEMPLATE REFERENCE: {{ template_path }}
+  OUTPUT FILENAME: {{ output_file_name }}
+
+  STEP 1: READ AND PARSE DATA
+  - Read the JSON data from {{ data_file_path }}
+  - Parse the comparables_data.json structure
+  - Extract: summary statistics, comparable_properties array, source_documents
+
+  STEP 2: REFERENCE THE TEMPLATE
+  - Read {{ template_path }} to understand the desired HTML structure
+  - Note the CSS styling, layout patterns, and interactive features
+  - The template includes a sticky navbar, property cards, and JavaScript functionality
+
+  STEP 3: GENERATE HTML WITH THESE COMPONENTS
+
+  A. HTML STRUCTURE:
+     - DOCTYPE and proper HTML5 structure
+     - Responsive viewport meta tag
+     - Title: "Comparable Properties Report"
+
+  B. CSS STYLING (inline in <style> tag):
+     - Reset styles (margin, padding, box-sizing)
+     - Gradient background (purple #667eea to #764ba2)
+     - Container with max-width 1400px
+     - Sticky navbar toolbar (position: sticky, top: 0, full-width, white background)
+     - Toolbar content: selection counter, dropdown, input, server status, button
+     - Property cards in responsive grid (1-3 columns based on screen size)
+     - Card styling with hover effects and shadows
+     - Property type badges (color-coded)
+     - Units table with alternating rows
+     - Checkboxes and buttons on cards
+     - Toast notifications (bottom-right, slide-up animation)
+     - Mobile responsive breakpoints
+
+  C. INTERACTIVE NAVBAR TOOLBAR:
+     - Full-width sticky navbar at top (extends edge-to-edge)
+     - Selection counter showing "0 properties selected"
+     - Dropdown: "Select existing comp set..."
+     - Text input: "Or enter new comp set name..."
+     - Server status indicator (online/offline)
+     - "Add Selected to Comp Set" button (disabled initially)
+
+  D. HEADER SECTION:
+     - Title: "📊 Comparable Properties Report"
+     - Summary statistics cards (4 columns):
+       * Total Properties
+       * Total Units
+       * Documents Processed
+       * Average Vacancy
+
+  E. PROPERTY CARDS GRID:
+     For each property in comparable_properties array:
+     - Property card with unique data-property-id attribute
+     - Checkbox (top-right) for bulk selection
+     - Saved badge indicator (top-left, hidden by default)
+     - Property name and address header
+     - Property type badge (color-coded: Multifamily=purple, Office=green, etc.)
+     - Property details (year built, units, occupancy, distance)
+     - Amenities list with tags
+     - Units table (unit type, sq ft, rent, $/SF)
+     - Source document reference
+     - Notes section
+     - "Add to Comp Set" button at bottom
+
+  F. JAVASCRIPT FUNCTIONALITY (inline <script> tag):
+     - Global state: serverAvailable, existingCompSets, selectedProperties, savedProperties
+     - On page load: check server availability, setup event listeners, sticky toolbar
+     - Server check: fetch http://localhost:3000/api/comp-sets
+     - Update server status indicator (online/offline)
+     - Load existing comp sets into dropdown
+     - Checkbox change handlers (add/remove from selection, update counter)
+     - Individual "Add to Comp Set" button handlers
+     - Bulk "Add Selected" button handler
+     - Form validation (require comp set name and selection)
+     - Save to comp set via POST to http://localhost:3000/api/save-comp-set
+     - Mark saved properties with badge
+     - Toast notifications (success/error/info types)
+     - Smart form handling (mutual exclusion between dropdown and input)
+
+  G. TOAST NOTIFICATION SYSTEM:
+     - Container fixed at bottom-right (z-index 9999)
+     - Toast messages with icons (✓ success, ✕ error, ℹ info)
+     - Slide-up animation on show, slide-down on hide
+     - Auto-dismiss after 4 seconds
+
+  STEP 4: GENERATE THE FILE
+  - Create the complete HTML file with all data from the JSON
+  - Use the exact styling and structure from the template reference
+  - Save as {{ output_file_name }} in the output/ directory (same directory as the data file)
+  - Ensure the file is self-contained (no external dependencies)
+
+  STEP 5: RETURN THE RESULT
+  - Provide a clickable hyperlink to the generated HTML file
+  - Format: file:///full/path/to/{{ output_file_name }}
+  - Confirm the file was created successfully with file size
+
+settings:
+  goose_provider: anthropic
+  goose_model: claude-sonnet-4-20250514
+  temperature: 0.0
+
+retry:
+  max_retries: 2
+  timeout_seconds: 30
+  checks:
+    - type: shell
+      command: "test -f {{ output_file_name }} && test -s {{ output_file_name }}"
+  on_failure: "echo 'HTML report generation failed. File not created or is empty.'"
