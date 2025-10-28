@@ -1,0 +1,295 @@
+{
+    "version": "1.0.0",
+    "title": "Commercial Real Estate OM Comparables Extraction",
+    "description": "Extract market comparable properties and units from Offering Memorandum documents, including rent surveys and market data from the comparables/market analysis section",
+    "instructions": "Analyze one or more Offering Memorandum (OM) documents in batch and extract all comparable properties listed in the 'Market Comparables', 'Competitive Set', 'Market Analysis', or similar sections. For each comparable property, extract detailed information about the property itself and any individual units mentioned. Also capture when the rent survey or market analysis was conducted if this information is available.\n\nBATCH PROCESSING:\n- Process all provided PDF files: {{ document_paths }}\n- Extract comparables from each document independently\n- Aggregate all results into a single JSON output\n- Track which comparables came from which source document\n- Provide summary statistics across all documents processed\n\nHTML GENERATION (REQUIRED FINAL STEP):\nAfter creating the structured JSON output, generate an HTML report with the following specifications:\n\n1. CREATE A MODERN, RESPONSIVE HTML PAGE with:\n   - Clean, professional styling using CSS\n   - A header section showing summary statistics (total properties, total units, documents processed)\n   - A card-based layout displaying each comparable property\n\n2. EACH PROPERTY CARD MUST DISPLAY:\n   - Property name (as card title/header)\n   - Complete address\n   - Property details: type, year built, units count, occupancy rate, distance from subject\n   - Amenities list (if any)\n   - Units table showing: unit type, square feet, rent amount, rent per SF\n   - Source document reference\n   - Any additional notes\n\n3. STYLING REQUIREMENTS:\n   - Use a card-based grid layout (responsive, 1-3 columns depending on screen size)\n   - Color-coded cards or badges for property types\n   - Tables for unit data with alternating row colors\n   - Highlight key metrics (occupancy rate, rent per SF)\n   - Include hover effects on cards\n   - Mobile-friendly responsive design\n\n4. SAVE THE HTML FILE as 'comparables_report.html' in the same directory as the JSON output\n\n5. The HTML should be self-contained (all CSS inline or in <style> tags, no external dependencies). Be sure to include a hyperlink of the newly created html file in your response.",
+    "extensions": [
+      {
+        "name": "developer",
+        "type": "builtin",
+        "display_name": "Developer",
+        "timeout": 300,
+        "bundled": true,
+        "description": "Read and analyze files, search codebase, and access project structure"
+      },
+      {
+        "name": "computercontroller",
+        "type": "builtin",
+        "display_name": "Computer Controller",
+        "timeout": 300,
+        "bundled": true,
+        "description": "Execute terminal commands and control the system"
+      },
+      {
+        "name": "pdfreader",
+        "type": "stdio",
+        "cmd": "uvx mcp-read-pdf",
+        "args": [],
+        "timeout": 300,
+        "description": "Read large and complex PDF documents"
+      }
+    ],
+    "prompt": "Please review these documents which are Offering Memoranda (OMs) used in commercial real estate transactions: {{ document_paths }}\n\nLook for sections titled: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey', or similar variations.\n\nThe subject property (being marketed) should NOT be included in the comparables list.\n\nRent values may be presented as monthly or annual figures - capture as provided.\n\nProperties may include multifamily residential, office, retail, or industrial assets.\n\nBATCH PROCESSING NOTES:\n- Each PDF should be processed independently first\n- Track which document each comparable came from using the source_document field\n- Deduplicate properties that appear in multiple OMs (keep all instances but note duplicates in summary)\n- Aggregate statistics across all documents in the summary section\n- If processing fails for one document, continue with others and note the failure in issues_encountered",
+    "response": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "properties": {
+        "survey_metadata": {
+          "type": "object",
+          "properties": {
+            "survey_date": {
+              "type": ["string", "null"],
+              "description": "Date when the rent survey or market analysis was conducted (e.g., 'Q2 2024', 'June 2024', 'As of March 15, 2024')"
+            },
+            "survey_source": {
+              "type": ["string", "null"],
+              "description": "Source of the market data if mentioned (e.g., 'CoStar', 'Internal Analysis', 'Third Party Appraisal')"
+            },
+            "market_area": {
+              "type": ["string", "null"],
+              "description": "Geographic market area described (e.g., 'Downtown Austin', 'North Dallas Submarket')"
+            }
+          },
+          "description": "Metadata about when and how the comparable data was collected"
+        },
+        "comparable_properties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "property_name": {
+                "type": "string",
+                "description": "Name of the comparable property"
+              },
+              "address": {
+                "type": "object",
+                "properties": {
+                  "street": {
+                    "type": ["string", "null"]
+                  },
+                  "city": {
+                    "type": ["string", "null"]
+                  },
+                  "state": {
+                    "type": ["string", "null"]
+                  },
+                  "zip": {
+                    "type": ["string", "null"]
+                  },
+                  "full_address": {
+                    "type": "string",
+                    "description": "Complete address as a single string"
+                  }
+                },
+                "required": ["full_address"],
+                "description": "Property address information"
+              },
+              "property_details": {
+                "type": "object",
+                "properties": {
+                  "property_type": {
+                    "type": ["string", "null"],
+                    "description": "Type of property (e.g., 'Multifamily', 'Office', 'Retail', 'Industrial', 'Mixed-Use')"
+                  },
+                  "year_built": {
+                    "type": ["integer", "null"],
+                    "description": "Year the property was constructed"
+                  },
+                  "year_renovated": {
+                    "type": ["integer", "null"],
+                    "description": "Year of last major renovation if applicable"
+                  },
+                  "total_units": {
+                    "type": ["integer", "null"],
+                    "description": "Total number of units/spaces in the property"
+                  },
+                  "total_square_feet": {
+                    "type": ["number", "null"],
+                    "description": "Total gross square footage"
+                  },
+                  "occupancy_rate": {
+                    "type": ["number", "null"],
+                    "description": "Occupancy rate as a percentage (0-100)"
+                  },
+                  "distance_from_subject": {
+                    "type": ["string", "null"],
+                    "description": "Distance from the subject property (e.g., '0.5 miles', '2 blocks')"
+                  }
+                },
+                "description": "General property characteristics"
+              },
+              "amenities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "List of property amenities (e.g., 'Pool', 'Fitness Center', 'Parking Garage')"
+              },
+              "units": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "unit_type": {
+                      "type": "string",
+                      "description": "Unit type or floor plan (e.g., 'Studio', '1BR/1BA', '2BR/2BA', 'Class A Office Suite')"
+                    },
+                    "count": {
+                      "type": ["integer", "null"],
+                      "description": "Number of units of this type"
+                    },
+                    "square_feet": {
+                      "type": ["number", "null"],
+                      "description": "Square footage of the unit type"
+                    },
+                    "rent_amount": {
+                      "type": ["number", "null"],
+                      "description": "Rent amount as a number"
+                    },
+                    "rent_period": {
+                      "type": ["string", "null"],
+                      "enum": ["monthly", "annual", "per_sf_annual", "per_sf_monthly", null],
+                      "description": "Period for the rent amount"
+                    },
+                    "rent_per_sf": {
+                      "type": ["number", "null"],
+                      "description": "Rent per square foot (calculated or provided)"
+                    },
+                    "notes": {
+                      "type": ["string", "null"],
+                      "description": "Additional notes about this unit type"
+                    }
+                  },
+                  "required": ["unit_type"],
+                  "description": "Individual unit/space information within the property"
+                },
+                "description": "List of unit types and their details"
+              },
+              "average_rent": {
+                "type": ["number", "null"],
+                "description": "Average rent across all units if provided as a summary metric"
+              },
+              "notes": {
+                "type": ["string", "null"],
+                "description": "Additional notes or observations about this comparable property"
+              },
+              "source_document": {
+                "type": ["string", "null"],
+                "description": "Name of the source OM document where this comparable was found (useful for batch processing)"
+              }
+            },
+            "required": ["property_name", "address"],
+            "description": "A single comparable property with its details"
+          },
+          "description": "Array of all comparable properties extracted from the OM(s)"
+        },
+        "document_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "document_name": {
+                "type": "string",
+                "description": "Name/filename of the source OM document"
+              },
+              "subject_property_name": {
+                "type": ["string", "null"],
+                "description": "Name of the subject property being marketed in this OM"
+              },
+              "subject_property_address": {
+                "type": ["string", "null"],
+                "description": "Address of the subject property"
+              },
+              "comparables_count": {
+                "type": "integer",
+                "description": "Number of comparable properties found in this document"
+              }
+            },
+            "required": ["document_name", "comparables_count"]
+          },
+          "description": "Information about the source OM documents processed"
+        },
+        "summary": {
+          "type": "object",
+          "properties": {
+            "total_documents_processed": {
+              "type": "integer",
+              "description": "Total number of OM documents analyzed"
+            },
+            "total_comparable_properties": {
+              "type": "integer",
+              "description": "Total number of comparable properties extracted across all documents"
+            },
+            "total_units_extracted": {
+              "type": "integer",
+              "description": "Total number of individual units/spaces catalogued"
+            },
+            "property_types_found": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "List of unique property types found in the comparables"
+            },
+            "issues_encountered": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Any issues or limitations encountered during extraction"
+            },
+            "duplicate_properties": {
+              "type": ["array", "null"],
+              "items": {
+                "type": "object",
+                "properties": {
+                  "property_name": {
+                    "type": "string"
+                  },
+                  "found_in_documents": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              },
+              "description": "List of properties that appear in multiple source documents"
+            }
+          },
+          "required": ["total_documents_processed", "total_comparable_properties", "total_units_extracted"]
+        }
+      },
+      "required": ["comparable_properties", "document_sources", "summary"],
+      "additionalProperties": false
+    },
+    "parameters": [
+      {
+        "key": "document_paths",
+        "description": "Array of file paths to the Offering Memorandum PDF documents to process (e.g. /path/to/document1.pdf, /path/to/document2.pdf)",
+        "input_type": "string",
+        "requirement": "required"
+      }
+    ],
+    "settings": {
+      "goose_provider": "anthropic",
+      "goose_model": "claude-sonnet-4-20250514",
+      "temperature": 0.0
+    },
+    "retry": {
+      "max_retries": 3,
+      "timeout_seconds": 30,
+      "checks": [
+        {
+          "type": "shell",
+          "command": "test -f comparables_report.html && test -s comparables_report.html"
+        },
+        {
+          "type": "shell",
+          "command": "test -f comparables_data.json && test -s comparables_data.json"
+        }
+      ],
+      "on_failure": "echo 'Retry failed. Missing or empty output files. HTML report or JSON data not generated.'"
+    }
+  }
+  

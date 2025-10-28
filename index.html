@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Comparables Report</title>
+</head>
+<body>
+    <div class="property-list">
+        <div class="property-item">
+            <input type="checkbox" class="property-checkbox" value="property1">
+            <span>Property 1 Description</span>
+        </div>
+        <div class="property-item">
+            <input type="checkbox" class="property-checkbox" value="property2">
+            <span>Property 2 Description</span>
+        </div>
+        <!-- Repeat for each property -->
+    </div>
+    <div class="comp-set-actions">
+        <button id="create-comp-set">Create New Comp Set</button>
+        <button id="save-selected">Add Selected to Comp Set</button>
+        <div>
+            <label for="comp-set-name">Comp Set Name:</label>
+            <input type="text" id="comp-set-name" placeholder="Enter name for Comp Set">
+        </div>
+    </div>
+    <div id="existing-comp-sets">
+        <h3>Existing Comp Sets</h3>
+        <ul id="comp-set-list"></ul>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCompSets();
+
+            document.getElementById('save-selected').addEventListener('click', function() {
+                const selectedProperties = Array.from(document.querySelectorAll('.property-checkbox:checked')).map(cb => cb.value);
+                const compSetName = document.getElementById('comp-set-name').value;
+                
+                if (compSetName && selectedProperties.length > 0) {
+                    saveCompSet(compSetName, selectedProperties);
+                } else {
+                    alert('Please enter a name and select at least one property.');
+                }
+            });
+
+            document.getElementById('create-comp-set').addEventListener('click', function() {
+                const compSetName = document.getElementById('comp-set-name').value;
+                if (compSetName) {
+                    createNewCompSet(compSetName);
+                } else {
+                    alert('Please enter a name for the new Comp Set.');
+                }
+            });
+        });
+
+        function loadCompSets() {
+            fetch('/api/comp-sets')
+                .then(response => response.json())
+                .then(compSets => {
+                    const compSetList = document.getElementById('comp-set-list');
+                    compSetList.innerHTML = ''; // Clear existing list
+                    compSets.forEach(set => {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = set.name;
+                        compSetList.appendChild(listItem);
+                    });
+                });
+        }
+
+        function saveCompSet(name, properties) {
+            const compSet = { name, properties };
+
+            fetch('/api/save-comp-set', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(compSet),
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert('Comp Set saved successfully!');
+                loadCompSets(); // Refresh the comp set list
+            })
+            .catch(error => console.error('Error saving comp set:', error));
+        }
+
+        function createNewCompSet(name) {
+            alert(`New Comp Set "${name}" created.`);
+        }
+    </script>
+</body>
+</html>
