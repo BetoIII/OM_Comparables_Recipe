@@ -379,25 +379,6 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
-        /* Individual Add Button */
-        .add-to-comp-btn {
-            margin-top: 15px;
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 0.95em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .add-to-comp-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.4);
-        }
 
         /* Saved Indicator Badge */
         .saved-badge {
@@ -648,8 +629,6 @@
                 <div class="notes">
                     💡 Neighborhood: Near East Side; Vacancy: 5.9%
                 </div>
-
-                <button class="add-to-comp-btn" data-property-id="property-1">➕ Add to Comp Set</button>
             </div>
 
             <!-- Example Property Card 2 -->
@@ -729,8 +708,6 @@
                 <div class="notes">
                     💡 Neighborhood: North Downtown; Vacancy: 3.9%
                 </div>
-
-                <button class="add-to-comp-btn" data-property-id="property-2">➕ Add to Comp Set</button>
             </div>
 
             <!-- Additional cards would follow the same pattern -->
@@ -836,12 +813,6 @@
                 checkbox.addEventListener('change', handleCheckboxChange);
             });
 
-            // Individual add button listeners
-            const addButtons = document.querySelectorAll('.add-to-comp-btn');
-            addButtons.forEach(button => {
-                button.addEventListener('click', handleIndividualAdd);
-            });
-
             // Bulk add button listener
             const addSelectedBtn = document.getElementById('addSelectedBtn');
             addSelectedBtn.addEventListener('click', handleBulkAdd);
@@ -904,25 +875,6 @@
             if (existingName) return existingName;
             if (newName) return newName;
             return null;
-        }
-
-        // Handle individual property add
-        async function handleIndividualAdd(e) {
-            if (!serverAvailable) {
-                showToast('Server is offline. Cannot save to comp set.', 'error');
-                return;
-            }
-
-            const propertyId = e.target.dataset.propertyId;
-            const compSetName = getCompSetName();
-
-            if (!compSetName) {
-                showToast('Please select or enter a comp set name.', 'error');
-                return;
-            }
-
-            const propertyData = getPropertyData(propertyId);
-            await saveToCompSet(compSetName, [propertyData]);
         }
 
         // Handle bulk add
