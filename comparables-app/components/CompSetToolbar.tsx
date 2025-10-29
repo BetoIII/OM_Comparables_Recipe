@@ -7,12 +7,14 @@ interface CompSetToolbarProps {
   selectionCount: number;
   onSaveToCompSet: (compSetName: string) => void;
   disabled?: boolean;
+  currentCompSetName?: string; // Optional: filters this comp set from the dropdown
 }
 
 export default function CompSetToolbar({
   selectionCount,
   onSaveToCompSet,
   disabled = false,
+  currentCompSetName,
 }: CompSetToolbarProps) {
   const [existingCompSets, setExistingCompSets] = useState<string[]>([]);
   const [selectedCompSet, setSelectedCompSet] = useState<string>('');
@@ -65,14 +67,25 @@ export default function CompSetToolbar({
 
   const canSave = selectionCount > 0 && !disabled && serverOnline;
 
+  // Filter out the current comp set from the dropdown
+  const availableCompSets = currentCompSetName
+    ? existingCompSets.filter((name) => name !== currentCompSetName)
+    : existingCompSets;
+
   return (
     <div className={`comp-toolbar ${disabled ? 'disabled' : ''} ${isScrolled ? 'scrolled' : ''}`}>
       <div className="toolbar-wrapper">
         <div className="toolbar-left">
+          <div className={`server-status-badge ${serverOnline ? 'online' : 'offline'}`}>
+            {serverOnline ? '● Online' : '● Offline'}
+          </div>
+
           <div className="selection-counter">
             {selectionCount} {selectionCount === 1 ? 'property' : 'properties'} selected
           </div>
+        </div>
 
+        <div className="toolbar-right">
           <select
             className="comp-select"
             value={selectedCompSet}
@@ -83,7 +96,7 @@ export default function CompSetToolbar({
             disabled={!serverOnline}
           >
             <option value="">Select existing comp set...</option>
-            {existingCompSets.map((name) => (
+            {availableCompSets.map((name) => (
               <option key={name} value={name}>
                 {name}
               </option>
@@ -101,12 +114,6 @@ export default function CompSetToolbar({
             }}
             disabled={!serverOnline}
           />
-        </div>
-
-        <div className="toolbar-right">
-          <div className={`server-status ${serverOnline ? 'online' : 'offline'}`}>
-            {serverOnline ? 'Server Online' : 'Server Offline'}
-          </div>
 
           <button
             className="comp-button"

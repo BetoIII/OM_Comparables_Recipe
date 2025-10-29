@@ -3,7 +3,6 @@ import fs from 'fs';
 import path from 'path';
 
 const compSetsDir = path.join(process.cwd(), '..', 'comp_sets');
-const dataPath = path.join(process.cwd(), '..', 'output', 'comparables_data.json');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { name } = req.query;
@@ -15,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const compSetPath = path.join(compSetsDir, `${name}.json`);
 
   if (req.method === 'GET') {
-    // Get specific comp set with enrichment
+    // Get specific comp set
     try {
       if (!fs.existsSync(compSetPath)) {
         return res.status(404).json({ success: false, error: 'Comp set not found' });
@@ -23,47 +22,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const compSetData = JSON.parse(fs.readFileSync(compSetPath, 'utf8'));
 
-      // Try to enrich with comparables data
-      if (fs.existsSync(dataPath)) {
-        try {
-          const comparablesData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-          const propertyMap = new Map();
-
-          // Create property map by property_name (supports both 'properties' and 'comparable_properties')
-          const propertiesList = comparablesData.properties || comparablesData.comparable_properties || [];
-          propertiesList.forEach((prop: any) => {
-            propertyMap.set(prop.property_name, prop);
-          });
-
-          // Enrich comp set properties
-          const enrichedProperties = compSetData.map((prop: any) => {
-            const fullProp = propertyMap.get(prop.property_name || prop.name);
-            if (fullProp) {
-              return { ...fullProp, property_id: prop.property_id || prop.property_name };
-            }
-            return { ...prop, dataNotFound: true };
-          });
-
-          return res.status(200).json({
-            success: true,
-            data: {
-              name,
-              properties: enrichedProperties,
-              summary: comparablesData.summary,
-            },
-          });
-        } catch (enrichError) {
-          // If enrichment fails, return without enrichment
-          console.error('Enrichment failed:', enrichError);
-        }
-      }
-
-      // Return without enrichment
+      // Return comp set data as-is (it already contains full property data)
       return res.status(200).json({
         success: true,
         data: {
           name,
-          properties: compSetData.map((prop: any) => ({ ...prop, dataNotFound: true })),
+          properties: compSetData,
         },
       });
     } catch (error) {

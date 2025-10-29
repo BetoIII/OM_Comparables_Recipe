@@ -10,6 +10,11 @@ if (!fs.existsSync(compSetsDir)) {
 }
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === 'HEAD') {
+    // Server status check
+    return res.status(200).end();
+  }
+
   if (req.method === 'GET') {
     // List all comp sets
     try {

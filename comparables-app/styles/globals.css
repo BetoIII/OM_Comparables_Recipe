@@ -223,11 +223,59 @@ body {
 
 .notes {
   margin-top: 15px;
-  padding: 10px;
   background: #fffbeb;
   border-left: 4px solid #ecc94b;
-  font-size: 0.9em;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.notes-toggle {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
   color: #744210;
+  font-size: 0.9em;
+  text-align: left;
+  transition: background 0.2s ease;
+}
+
+.notes-toggle:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.notes-toggle strong {
+  font-weight: 600;
+}
+
+.toggle-icon {
+  font-size: 0.8em;
+  margin-left: 8px;
+  color: #744210;
+}
+
+.notes-content {
+  padding: 10px;
+  padding-top: 0;
+  color: #744210;
+  font-size: 0.9em;
+  line-height: 1.5;
+  animation: expandNotes 0.2s ease;
+}
+
+@keyframes expandNotes {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 500px;
+  }
 }
 
 /* Comp Set Management Toolbar */
@@ -360,6 +408,26 @@ body {
 }
 
 .server-status.offline {
+  background: #fed7d7;
+  color: #742a2a;
+}
+
+.server-status-badge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.server-status-badge.online {
+  background: #c6f6d5;
+  color: #22543d;
+}
+
+.server-status-badge.offline {
   background: #fed7d7;
   color: #742a2a;
 }

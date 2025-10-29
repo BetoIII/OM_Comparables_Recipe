@@ -7,6 +7,7 @@ import CompSetToolbar from '@/components/CompSetToolbar';
 import ToastContainer, { useToast } from '@/components/Toast';
 import { ComparablesData, ComparableProperty } from '@/lib/types';
 import { saveCompSet } from '@/lib/api';
+import { exportComparablesToXLS } from '@/lib/xlsExport';
 
 export default function ComparablesPage() {
   const [data, setData] = useState<ComparablesData | null>(null);
@@ -74,6 +75,21 @@ export default function ComparablesPage() {
     }
   };
 
+  const handleExportToXLS = () => {
+    const properties = data?.comparable_properties || data?.properties || [];
+    if (properties.length === 0) {
+      showError('No properties to export');
+      return;
+    }
+
+    try {
+      exportComparablesToXLS(properties);
+      showSuccess(`Exported ${properties.length} properties to XLS`);
+    } catch (err: any) {
+      showError(err.message || 'Failed to export to XLS');
+    }
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ paddingTop: '40px' }}>
@@ -102,6 +118,27 @@ export default function ComparablesPage() {
 
   const properties = data.comparable_properties || data.properties || [];
 
+  // Helper function to extract occupancy from property (basic_info or notes)
+  const getOccupancy = (property: ComparableProperty): number | null => {
+    if (property.basic_info?.occupancy_rate !== undefined) {
+      return property.basic_info.occupancy_rate;
+    }
+    if (property.notes) {
+      const match = property.notes.match(/Occupancy:\s*(\d+(?:\.\d+)?)/i);
+      if (match) return parseFloat(match[1]);
+    }
+    return null;
+  };
+
+  // Helper function to extract avg rent/sqft from property notes
+  const getAvgRentPerSqft = (property: ComparableProperty): number | null => {
+    if (property.notes) {
+      const match = property.notes.match(/Avg\.?\s*Rent\/SF:\s*\$?([\d.]+)/i);
+      if (match) return parseFloat(match[1]);
+    }
+    return null;
+  };
+
   const stats = [
     { number: data.summary.total_properties, label: 'Total Properties' },
     {
@@ -111,7 +148,24 @@ export default function ComparablesPage() {
       ),
       label: 'Total Units',
     },
-    { number: data.summary.documents_processed.length, label: 'Documents Processed' },
+    {
+      number: (() => {
+        const occupancies = properties.map(getOccupancy).filter((o): o is number => o !== null);
+        return occupancies.length > 0
+          ? `${Math.round(occupancies.reduce((sum, o) => sum + o, 0) / occupancies.length)}%`
+          : 'N/A';
+      })(),
+      label: 'Avg Occupancy',
+    },
+    {
+      number: (() => {
+        const rentPerSqfts = properties.map(getAvgRentPerSqft).filter((r): r is number => r !== null);
+        return rentPerSqfts.length > 0
+          ? `$${(rentPerSqfts.reduce((sum, r) => sum + r, 0) / rentPerSqfts.length).toFixed(2)}`
+          : 'N/A';
+      })(),
+      label: 'Avg Rent/SF',
+    },
     {
       number: Math.round(
         properties.filter((p) => p.basic_info.year_built).length > 0
@@ -132,7 +186,32 @@ export default function ComparablesPage() {
 
       <div className="container">
         <div className="header">
-          <h1>Comparable Properties Report</h1>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h1 style={{ marginBottom: 0 }}>Comparable Properties Report</h1>
+            <button
+              className="comp-button export-button"
+              onClick={handleExportToXLS}
+              style={{
+                background: '#10b981',
+              }}
+            >
+              📊 Export to XLS
+            </button>
+          </div>
+          {data.summary.documents_processed && data.summary.documents_processed.length > 0 && (
+            <div style={{
+              marginBottom: '20px',
+              padding: '12px',
+              background: '#f7fafc',
+              borderRadius: '8px',
+              borderLeft: '4px solid #667eea'
+            }}>
+              <strong style={{ color: '#2d3748' }}>Source Documents:</strong>
+              <span style={{ color: '#4a5568', marginLeft: '8px' }}>
+                {data.summary.documents_processed.join(', ')}
+              </span>
+            </div>
+          )}
           <SummaryStats stats={stats} />
         </div>
 
@@ -144,6 +223,8 @@ export default function ComparablesPage() {
               selected={selectedProperties.has(property.property_name)}
               onSelect={(selected) => handleSelectProperty(property.property_name, selected)}
               showCheckbox={true}
+              showSource={false}
+              showDistance={true}
             />
           ))}
         </div>
