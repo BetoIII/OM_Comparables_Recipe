@@ -49,11 +49,48 @@ The app will start on **http://localhost:3001**
 Place all your Offering Memorandum PDF files in a known location.
 
 ### 3. Run the Recipe
-Use the recipe with an array of PDF file paths:
+
+#### Single PDF
+Process one Offering Memorandum:
 
 ```bash
-goose run search_comps --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf"
+goose run search_comps --document_paths "/path/to/OM_Downtown_Property.pdf"
 ```
+
+#### Multiple PDFs (Batch Processing)
+Process multiple OMs at once - separate paths with commas (no spaces):
+
+```bash
+goose run search_comps --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf,/path/to/OM3.pdf"
+```
+
+#### Batch Processing Examples
+
+**Example 1: Process all OMs in a folder**
+```bash
+# macOS/Linux
+goose run search_comps --document_paths "$(find ~/Documents/OMs -name '*.pdf' -type f | paste -sd ',' -)"
+
+# Or manually list files in the same directory
+goose run search_comps --document_paths "/Users/yourname/Documents/OMs/Property_A_OM.pdf,/Users/yourname/Documents/OMs/Property_B_OM.pdf,/Users/yourname/Documents/OMs/Property_C_OM.pdf"
+```
+
+**Example 2: Process OMs from different locations**
+```bash
+goose run search_comps --document_paths "/Users/yourname/Desktop/OM_Austin.pdf,/Users/yourname/Downloads/OM_Dallas.pdf,/Users/yourname/Documents/Projects/OM_Houston.pdf"
+```
+
+**Example 3: Windows batch processing**
+```bash
+# Windows (PowerShell)
+goose run search_comps --document_paths "C:\Documents\OM1.pdf,C:\Documents\OM2.pdf,C:\Documents\OM3.pdf"
+```
+
+**Tips for batch processing:**
+- All PDFs will be processed in a single run
+- Results are combined into one `comparables_data.json` file
+- Processing time: ~30 seconds per PDF
+- Maximum recommended: 10-15 PDFs per batch for optimal performance
 
 ### 4. View Your Results
 After the recipe completes, open your browser to:
