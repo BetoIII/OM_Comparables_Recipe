@@ -51,7 +51,8 @@ export default function ComparablesPage() {
 
   const handleSaveToCompSet = async (compSetName: string) => {
     try {
-      const selectedProps = data?.comparable_properties.filter((p) =>
+      const properties = data?.comparable_properties || data?.properties || [];
+      const selectedProps = properties.filter((p) =>
         selectedProperties.has(p.property_name)
       );
 
@@ -99,10 +100,12 @@ export default function ComparablesPage() {
     );
   }
 
+  const properties = data.comparable_properties || data.properties || [];
+
   const stats = [
     { number: data.summary.total_properties, label: 'Total Properties' },
     {
-      number: data.comparable_properties.reduce(
+      number: properties.reduce(
         (sum, p) => sum + (p.basic_info.total_units || 0),
         0
       ),
@@ -111,9 +114,9 @@ export default function ComparablesPage() {
     { number: data.summary.documents_processed.length, label: 'Documents Processed' },
     {
       number: Math.round(
-        data.comparable_properties.filter((p) => p.basic_info.year_built).length > 0
-          ? data.comparable_properties.reduce((sum, p) => sum + (p.basic_info.year_built || 0), 0) /
-              data.comparable_properties.filter((p) => p.basic_info.year_built).length
+        properties.filter((p) => p.basic_info.year_built).length > 0
+          ? properties.reduce((sum, p) => sum + (p.basic_info.year_built || 0), 0) /
+              properties.filter((p) => p.basic_info.year_built).length
           : 0
       ),
       label: 'Avg Year Built',
@@ -134,7 +137,7 @@ export default function ComparablesPage() {
         </div>
 
         <div className="properties-grid">
-          {data.comparable_properties.map((property) => (
+          {properties.map((property) => (
             <PropertyCard
               key={property.property_name}
               property={property}

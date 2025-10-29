@@ -29,12 +29,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const comparablesData = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
           const propertyMap = new Map();
 
-          // Create property map by property_name (since schema uses property_name)
-          if (comparablesData.comparable_properties) {
-            comparablesData.comparable_properties.forEach((prop: any) => {
-              propertyMap.set(prop.property_name, prop);
-            });
-          }
+          // Create property map by property_name (supports both 'properties' and 'comparable_properties')
+          const propertiesList = comparablesData.properties || comparablesData.comparable_properties || [];
+          propertiesList.forEach((prop: any) => {
+            propertyMap.set(prop.property_name, prop);
+          });
 
           // Enrich comp set properties
           const enrichedProperties = compSetData.map((prop: any) => {

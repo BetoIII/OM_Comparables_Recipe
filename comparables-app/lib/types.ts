@@ -5,6 +5,8 @@ export interface BasicInfo {
   total_units?: number | null;
   total_square_feet?: number | null;
   year_built?: number | null;
+  year_renovated?: number | null;
+  occupancy_rate?: number | null; // Percentage (0-100)
 }
 
 export interface UnitDetail {
@@ -17,13 +19,15 @@ export interface ComparableProperty {
   property_name: string;
   full_address: string; // Simplified: single string instead of nested object
   basic_info: BasicInfo;
+  distance_from_subject?: string | null; // e.g., '0.5 miles', '2 blocks'
   units_detail?: UnitDetail[];
   notes?: string | null; // Can include amenities, occupancy, distance, etc.
   source_document: string;
 }
 
 export interface ComparablesData {
-  comparable_properties: ComparableProperty[];
+  comparable_properties?: ComparableProperty[]; // Legacy field name
+  properties?: ComparableProperty[]; // Current field name
   summary: {
     total_properties: number;
     documents_processed: string[];

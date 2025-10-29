@@ -2,7 +2,7 @@
     "version": "1.0.0",
     "title": "Commercial Real Estate OM Comparables Extraction",
     "description": "Extract market comparable properties and units from Offering Memorandum documents, including rent surveys and market data from the comparables/market analysis section. View results in the Next.js app at http://localhost:3001/comparables",
-    "instructions": "Extract comparable properties from Offering Memorandum PDFs. Process each PDF, find the comparables section, extract property and unit data, and save as JSON at output/comparables_data.json. View the results in the Next.js app (comparables-app) running on port 3001. HTML generation is now deprecated in favor of the Next.js app.",
+    "instructions": "Extract comparable properties from Offering Memorandum PDFs. Process each PDF, find the comparables section, extract property and unit data, and save as JSON at output/comparables_data.json. View the results in the Next.js app (comparables-app) running on port 3001.",
     "extensions": [
       {
         "name": "developer",
@@ -37,7 +37,7 @@
         "description": "Track task progress and manage to-do lists"
       }
     ],
-    "prompt": "TASK: Extract comparable properties from commercial real estate Offering Memorandum PDFs.\n\nDOCUMENTS: {{ document_paths }}\n\nSTEPS:\n\n1. READ EACH PDF\n   - Use pdfreader extension to read the PDF content\n\n2. FIND COMPARABLES SECTION\n   - Look for: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey'\n   - Skip the subject property (the one being marketed)\n\n3. EXTRACT CORE DATA (required for each property):\n   - property_name\n   - full_address (as single string)\n   - basic_info object:\n     * property_type (required: Multifamily, Office, Retail, etc.)\n     * total_units (if shown)\n     * total_square_feet (if shown)\n     * year_built (if shown)\n   - source_document (filename)\n\n4. ADD OPTIONAL DATA (if easily found):\n   - units_detail array: unit_type, square_feet, rent (as shown: '$1,500/month', '$25/sf/year', etc.)\n   - notes: any other info (amenities, occupancy, distance)\n\n5. CREATE JSON\n   - Save as 'output/comparables_data.json'\n   - Include summary: total_properties count and documents_processed list\n\n6. HTML (only if generate_html='{{ generate_html }}' is 'true'):\n   - Read sample_html_template.html\n   - Create output/comparables_report.html\n   - Note: HTML generation is deprecated. Users should use the Next.js app instead.\n\n7. FINAL OUTPUT MESSAGE\n   After completing the extraction, display this message to the user:\n\n   ✅ Comparables extraction complete!\n   📊 Data saved to: output/comparables_data.json\n   \n   View your results in the Next.js app:\n   http://localhost:3001/comparables\n   \n   (Make sure the Next.js app is running: cd comparables-app && npm run dev)\n\nFOCUS: Get the core fields first. Add optional fields only if clearly visible. Don't spend time searching for missing data.",
+    "prompt": "TASK: Extract comparable properties from commercial real estate Offering Memorandum PDFs.\n\nDOCUMENTS: {{ document_paths }}\n\nSTEPS:\n\n1. READ EACH PDF\n   - Use pdfreader extension to read the PDF content\n\n2. FIND COMPARABLES SECTION\n   - Look for: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey'\n   - Skip the subject property (the one being marketed)\n\n3. EXTRACT CORE DATA (required for each property):\n   - property_name\n   - full_address (as single string)\n   - basic_info object:\n     * property_type (required: Multifamily, Office, Retail, etc.)\n     * total_units (if shown)\n     * total_square_feet (if shown)\n     * year_built (if shown)\n     * year_renovated (if shown)\n     * occupancy_rate (if shown, as percentage 0-100)\n   - source_document (filename)\n\n4. ADD OPTIONAL DATA (if easily found):\n   - distance_from_subject: distance from subject property (e.g., '0.5 miles', '2 blocks')\n   - units_detail array: unit_type, square_feet, rent (as shown: '$1,500/month', '$25/sf/year', etc.)\n   - notes: any other info (amenities, etc.)\n\n5. CREATE JSON\n   - Save as 'output/comparables_data.json'\n   - Include summary: total_properties count and documents_processed list\n\n6. FINAL OUTPUT MESSAGE\n   After completing the extraction, display this message to the user:\n\n   ✅ Comparables extraction complete!\n   📊 Data saved to: output/comparables_data.json\n   \n   View your results in the Next.js app:\n   http://localhost:3001/comparables\n   \n   (Make sure the Next.js app is running: cd comparables-app && npm run dev)\n\nFOCUS: Get the core fields first. Add optional fields only if clearly visible. Don't spend time searching for missing data.",
     "response": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -73,10 +73,22 @@
                   "year_built": {
                     "type": ["integer", "null"],
                     "description": "Year constructed"
+                  },
+                  "year_renovated": {
+                    "type": ["integer", "null"],
+                    "description": "Year of last major renovation if applicable"
+                  },
+                  "occupancy_rate": {
+                    "type": ["number", "null"],
+                    "description": "Occupancy rate as a percentage (0-100)"
                   }
                 },
                 "required": ["property_type"],
                 "description": "Core property information"
+              },
+              "distance_from_subject": {
+                "type": ["string", "null"],
+                "description": "Distance from the subject property (e.g., '0.5 miles', '2 blocks')"
               },
               "units_detail": {
                 "type": "array",
@@ -143,13 +155,6 @@
         "description": "Array of file paths to the Offering Memorandum PDF documents to process (e.g. /path/to/document1.pdf, /path/to/document2.pdf)",
         "input_type": "string",
         "requirement": "required"
-      },
-      {
-        "key": "generate_html",
-        "description": "Whether to generate an interactive HTML report after data extraction (true/false). Default is false.",
-        "input_type": "string",
-        "requirement": "optional",
-        "default": "false"
       }
     ],
     "settings": {
@@ -164,7 +169,7 @@
           "command": "test -f output/comparables_data.json && test -s output/comparables_data.json"
         }
       ],
-      "on_failure": "echo 'Retry failed. Missing or empty output/comparables_data.json file. Note: HTML generation is conditional based on generate_html parameter.'"
+      "on_failure": "echo 'Retry failed. Missing or empty output/comparables_data.json file.'"
     }
   }
   
