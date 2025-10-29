@@ -1,0 +1,110 @@
+{
+  "summary": {
+    "total_properties": 3,
+    "extraction_date": "2025-01-15",
+    "documents_processed": [
+      "Example_OM_Property_A.pdf"
+    ]
+  },
+  "comparable_properties": [
+    {
+      "property_name": "Riverfront Apartments",
+      "basic_info": {
+        "full_address": "123 River Street, Austin, TX 78701",
+        "property_type": "Multifamily",
+        "year_built": 2019,
+        "total_units": 180,
+        "total_square_feet": 165000
+      },
+      "financial_data": {
+        "rent": "$1,450/month average"
+      },
+      "notes": "Amenities: Pool, Fitness Center, Pet Friendly. Occupancy: 95%. Distance from subject: 1.2 miles. Avg Rent/SF: $1.85",
+      "source_document": "Example_OM_Property_A.pdf",
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": "$1,200/month",
+          "sqft": 550
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": "$1,450/month",
+          "sqft": 725
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": "$1,950/month",
+          "sqft": 1050
+        }
+      ]
+    },
+    {
+      "property_name": "Downtown Lofts",
+      "basic_info": {
+        "full_address": "456 Main Avenue, Austin, TX 78702",
+        "property_type": "Multifamily",
+        "year_built": 2021,
+        "total_units": 120,
+        "total_square_feet": 95000,
+        "occupancy_rate": 92
+      },
+      "financial_data": {
+        "rent": "$1,650/month average"
+      },
+      "notes": "Amenities: Rooftop Deck, Coworking Space, Parking Garage. Modern finishes throughout. Distance from subject: 0.8 miles. Avg Rent/SF: $2.10",
+      "source_document": "Example_OM_Property_A.pdf",
+      "unit_mix": [
+        {
+          "unit_type": "Studio",
+          "rent": "$1,350/month",
+          "sqft": 525
+        },
+        {
+          "unit_type": "1 Bedroom",
+          "rent": "$1,650/month",
+          "sqft": 750
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": "$2,200/month",
+          "sqft": 1100
+        }
+      ]
+    },
+    {
+      "property_name": "Parkside Commons",
+      "basic_info": {
+        "full_address": "789 Park Boulevard, Austin, TX 78703",
+        "property_type": "Multifamily",
+        "year_built": 2018,
+        "year_renovated": 2023,
+        "total_units": 215,
+        "total_square_feet": 198000,
+        "occupancy_rate": 97
+      },
+      "financial_data": {
+        "rent": "$1,550/month average"
+      },
+      "notes": "Amenities: Pool, Tennis Courts, Dog Park, Clubhouse. Recently renovated units. Distance from subject: 2.5 miles. Avg Rent/SF: $1.92",
+      "source_document": "Example_OM_Property_A.pdf",
+      "unit_mix": [
+        {
+          "unit_type": "1 Bedroom",
+          "rent": "$1,350/month",
+          "sqft": 680
+        },
+        {
+          "unit_type": "2 Bedroom",
+          "rent": "$1,750/month",
+          "sqft": 950
+        },
+        {
+          "unit_type": "3 Bedroom",
+          "rent": "$2,350/month",
+          "sqft": 1250
+        }
+      ]
+    }
+  ]
+}

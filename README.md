@@ -1,7 +1,22 @@
 # OM Comparables Extraction Recipe
 
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Node](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)
+![Next.js](https://img.shields.io/badge/Next.js-14.2-black.svg)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)
+
 ## 🎯 Purpose
 Automatically extract comparable properties data from Offering Memorandum (OM) documents and view them in a modern Next.js web application with interactive property management.
+
+## ✅ Prerequisites
+
+Before using this recipe, ensure you have:
+
+- **Node.js** 18.0.0 or higher ([Download](https://nodejs.org/))
+- **npm** 9.0.0 or higher (comes with Node.js)
+- **Goose AI** account and CLI installed ([Setup Guide](https://docs.goose.ai))
+- **PDF Documents** - Offering Memorandums in PDF format
+- **Basic Terminal Knowledge** - Ability to run commands in terminal/command prompt
 
 ## 📁 Repository Structure
 
@@ -235,7 +250,96 @@ comparables-app/
 
 ---
 
+## 🔧 Troubleshooting
+
+### Next.js App Won't Start
+
+**Problem:** `npm run dev` fails or port 3001 is already in use
+
+**Solutions:**
+```bash
+# Check if port 3001 is in use
+lsof -i :3001
+
+# Kill the process using port 3001
+kill -9 <PID>
+
+# Or change the port in package.json
+"dev": "next dev -p 3002"
+```
+
+### No Data Showing in App
+
+**Problem:** Comparables page shows "No data available"
+
+**Solutions:**
+1. Verify you've run the recipe: `goose run search_comps --document_paths "..."`
+2. Check that `output/comparables_data.json` exists
+3. Verify the Next.js app is looking in the correct directory
+4. Check browser console for API errors
+
+### Properties Missing from Extraction
+
+**Problem:** Some properties aren't being extracted from PDFs
+
+**Solutions:**
+1. Verify PDFs have a "Comparables" or "Market Analysis" section
+2. Check PDF is readable (not scanned image without OCR)
+3. Try re-running with individual PDFs to isolate the issue
+4. Review the Goose AI logs for extraction errors
+
+### Comp Set Not Saving
+
+**Problem:** "Add to Comp Set" fails or properties don't appear
+
+**Solutions:**
+1. Verify the Next.js app is running
+2. Check that `comp_sets/` folder exists and is writable
+3. Look for errors in browser console
+4. Verify API route is accessible: `curl http://localhost:3001/api/comp-sets`
+
+### Build Errors
+
+**Problem:** TypeScript or Next.js build errors
+
+**Solutions:**
+```bash
+# Clear Next.js cache and reinstall
+cd comparables-app
+rm -rf .next node_modules package-lock.json
+npm install
+npm run dev
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+**TL;DR:** You can use, modify, and distribute this tool freely for personal or commercial use. Attribution is appreciated but not required.
+
+---
+
+## 💬 Support
+
+- **Issues:** Report bugs or request features via [GitHub Issues](https://github.com/BetoIII/OM_Comparables_Recipe/issues)
+- **Discussions:** Ask questions or share ideas in [GitHub Discussions](https://github.com/BetoIII/OM_Comparables_Recipe/discussions)
+- **Documentation:** Check the [batch_processing_example.md](batch_processing_example.md) for detailed examples
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to:
+- Report bugs
+- Suggest features
+- Submit pull requests
+- Follow coding standards
+
+---
+
 **Version:** 3.0
-**Last Updated:** October 2024
+**Last Updated:** January 2025
 **Supported Property Types:** Multifamily, Office, Retail, Industrial, Mixed-Use
 **Tech Stack:** Next.js 14, React 18, TypeScript 5
