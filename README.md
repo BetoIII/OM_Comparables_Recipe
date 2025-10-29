@@ -1,100 +1,103 @@
-# Comparables Recipe
-This project allows users to analyze comparable properties and manage customizable "Comp Sets".
-
-## Features
-- Select properties using checkboxes.
-- Create and save comp sets as JSON files.
-- Retrieve existing comp sets.
 # OM Comparables Extraction Recipe
 
 ## 🎯 Purpose
-Automatically extract comparable properties data from Offering Memorandum (OM) documents and generate a beautiful HTML report with property cards.
+Automatically extract comparable properties data from Offering Memorandum (OM) documents and view them in a modern Next.js web application with interactive property management.
 
 ## 📁 Repository Structure
 
 | File/Folder | Description |
 |------|-------------|
 | `comparables_search.json` | Main recipe configuration file for Goose |
+| `comparables-app/` | Next.js web application for viewing comparables |
 | `batch_processing_example.md` | Detailed usage guide and examples |
-| `sample_html_template.html` | Visual example of the HTML output |
-| `server.js` | Express server for comp set management |
-| `index.html` | UI for managing comparable sets |
-| `output/` | Generated reports and extracted data (gitignored) |
+| `output/` | Generated JSON data from extraction (gitignored) |
 | `comp_sets/` | Saved comparable sets (gitignored - may contain personal data) |
-| `node_modules/` | NPM dependencies (gitignored) |
 | `README.md` | This file - quick reference guide |
 
 ### Output Folder
-All generated files (JSON data, HTML reports, extracted text) are automatically saved to the `output/` folder. This folder is excluded from version control to prevent committing generated data files.
+All generated JSON files are automatically saved to the `output/` folder. This folder is excluded from version control to prevent committing generated data files.
 
 ## 🚀 Quick Start
 
-### 1. Prepare Your PDFs
-Place all your Offering Memorandum PDF files in a known location.
+### 1. Start the Next.js App
+Before running any recipes, start the Next.js app:
 
-### 2. Run the Recipe
-Use the recipe with an array of PDF file paths:
-
-```json
-{
-  "document_paths": [
-    "/path/to/OM1.pdf",
-    "/path/to/OM2.pdf",
-    "/path/to/OM3.pdf"
-  ]
-}
+```bash
+cd comparables-app
+npm install
+npm run dev
 ```
 
-### 3. Get Your Results
-The recipe will generate:
-- **JSON file** - Structured data for analysis
-- **HTML report** - Visual report with property cards
+The app will start on **http://localhost:3001**
+
+### 2. Prepare Your PDFs
+Place all your Offering Memorandum PDF files in a known location.
+
+### 3. Run the Recipe
+Use the recipe with an array of PDF file paths:
+
+```bash
+goose run search_comps --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf"
+```
+
+### 4. View Your Results
+After the recipe completes, open your browser to:
+- **Comparables Report:** http://localhost:3001/comparables
+- **Comp Sets Manager:** http://localhost:3001/comp-sets
 
 ## 📊 What Gets Extracted
 
 For each comparable property found:
 - ✅ Property name and complete address
 - ✅ Property type, year built, total units
-- ✅ Occupancy rate and distance from subject
-- ✅ Amenities list
-- ✅ Unit mix details (type, sq ft, rent, $/SF)
+- ✅ Total square footage
+- ✅ Unit mix details (type, sq ft, rent as shown)
+- ✅ Notes (amenities, occupancy, distance, etc.)
 - ✅ Source document reference
-- ✅ Additional notes
 
-## 🎨 HTML Report Features
+## 🎨 Next.js App Features
 
-The generated HTML report includes:
-- **Summary Dashboard** - Total properties, units, documents processed
+### Comparables Report Page (`/comparables`)
+- **Summary Dashboard** - Total properties, units, documents processed, avg year built
 - **Property Cards** - Each comparable in a clean, organized card
+- **Checkbox Selection** - Select multiple properties for comp sets
+- **Comp Set Toolbar** - Create new comp sets or add to existing ones
 - **Responsive Design** - Works on all devices
 - **Color Coding** - Property types have distinct colors
-- **Interactive Tables** - Unit mix data in sortable format
+- **Interactive Tables** - Unit mix data in clean tables
 - **Source Tracking** - See which OM each property came from
+
+### Comp Sets Manager (`/comp-sets`)
+- **List View** - See all your saved comp sets
+- **Detail View** - View individual comp sets with full property details
+- **Rename/Delete** - Manage comp set names
+- **Remove Properties** - Remove individual properties from comp sets
+- **Data Enrichment** - Automatically enriches comp set data with full property details
 
 ## 📋 Property Card Contents
 
 Each card displays:
 ```
 ┌─────────────────────────────────────┐
+│ [✓] Checkbox         [Property Type]│
+│                                     │
 │ Property Name                       │
-│ Address                             │
-│ [Property Type Badge]               │
+│ Full Address                        │
 ├─────────────────────────────────────┤
 │ Year Built: 2018                    │
 │ Total Units: 271                    │
-│ Occupancy: 94.1%                    │
-│ Distance: 2.8 mi                    │
-├─────────────────────────────────────┤
-│ Amenities:                          │
-│ [Pool] [Gym] [Parking]              │
+│ Total Square Feet: 245,000 SF       │
 ├─────────────────────────────────────┤
 │ Unit Mix:                           │
-│ ┌──────┬──────┬────────┬──────┐    │
-│ │ Type │ SqFt │ Rent   │ $/SF │    │
-│ ├──────┼──────┼────────┼──────┤    │
-│ │ 1BR  │ 646  │ $1,091 │ 1.69 │    │
-│ │ 2BR  │ 1213 │ $1,811 │ 1.49 │    │
-│ └──────┴──────┴────────┴──────┘    │
+│ ┌──────────┬──────────┬──────────┐ │
+│ │ Unit Type│ Rent     │ Sq Ft    │ │
+│ ├──────────┼──────────┼──────────┤ │
+│ │ 1BR      │ $1,091/mo│ 646      │ │
+│ │ 2BR      │ $1,811/mo│ 1,213    │ │
+│ └──────────┴──────────┴──────────┘ │
+├─────────────────────────────────────┤
+│ Notes: Pool, Gym, 94% occupied,    │
+│ 2.8 mi from subject                 │
 ├─────────────────────────────────────┤
 │ Source: OM - Property Name.pdf      │
 └─────────────────────────────────────┘
@@ -116,10 +119,17 @@ The recipe looks for sections titled:
 1. **Market Analysis** - Compare multiple properties across different OMs
 2. **Investment Research** - Analyze competitive sets for potential acquisitions
 3. **Portfolio Review** - Track comparable properties for existing assets
-4. **Presentation Materials** - Generate professional reports for stakeholders
+4. **Comp Set Creation** - Build custom comparison sets for specific analyses
 5. **Due Diligence** - Compile market data from multiple sources
 
 ## 🎯 Best Practices
+
+### Workflow
+1. Start Next.js app (`cd comparables-app && npm run dev`)
+2. Run Goose recipe to extract data
+3. View results at http://localhost:3001/comparables
+4. Select properties and create comp sets
+5. Manage comp sets at http://localhost:3001/comp-sets
 
 ### File Organization
 ```
@@ -128,21 +138,20 @@ The recipe looks for sections titled:
     OM_Property_A.pdf
     OM_Property_B.pdf
     OM_Property_C.pdf
-  /Output/
-    extracted_comparables.json
-    comparables_report.html
+  /output/
+    comparables_data.json
+  /comp_sets/
+    downtown-comps.json
+    suburban-comps.json
+  /comparables-app/
+    (Next.js application)
 ```
-
-### Naming Conventions
-- Use descriptive OM filenames
-- Include property address or name in filename
-- Keep PDFs in a dedicated folder
 
 ### Quality Checks
 - ✅ Verify all PDFs are readable
 - ✅ Check that PDFs contain comparable sections
 - ✅ Review the summary section for any issues
-- ✅ Validate occupancy rates and rent data
+- ✅ Validate unit counts and rent data in the app
 
 ## 📈 Example Output Statistics
 
@@ -154,38 +163,60 @@ Property Types: Multifamily, Office, Mixed-Use
 Average Processing Time: ~30 seconds per document
 ```
 
-## 🔧 Customization
+## 🔧 Technology Stack
 
-The HTML template can be customized for:
-- Company branding
-- Different color schemes
-- Additional data fields
-- Custom metrics and calculations
+- **Backend:** Next.js API Routes (replaces Express server)
+- **Frontend:** React with TypeScript
+- **Styling:** CSS modules with gradient design
+- **Data Storage:** File-based JSON (comp_sets/, output/)
+- **Extraction:** Goose AI recipe with PDF reader
 
-## 📞 Support
+## 🆕 Recent Updates (v3.0)
 
-For issues or questions:
-1. Check the `batch_processing_example.md` for detailed examples
-2. Review the `sample_html_template.html` for visual reference
-3. Examine the JSON schema in the recipe file
-
-## 🆕 Recent Updates
-
-- ✅ Added batch processing support
-- ✅ Implemented HTML report generation
-- ✅ Added source document tracking
-- ✅ Included duplicate property detection
-- ✅ Enhanced error handling
+- ✅ Migrated from static HTML to Next.js app
+- ✅ Added interactive comp set management
+- ✅ Implemented API routes for CRUD operations
+- ✅ Simplified data schema (flat address, string-based rent)
+- ✅ Removed individual "Add" buttons in favor of checkbox-only workflow
+- ✅ Deprecated HTML generation (use Next.js app instead)
+- ✅ Added TypeScript for better type safety
 
 ## 📝 Notes
 
 - The subject property being marketed is NOT included in comparables
-- Rent values are captured as provided (monthly or annual)
+- Rent values are captured as shown in documents (e.g., "$1,500/month", "$25/sf/year")
 - Properties can have 0 to many units (some may not list unit details)
-- Survey dates may not always be explicitly stated
+- The Next.js app must be running before you view results
+- Old HTML files are no longer generated by default
+
+## 🛠️ Development
+
+### Next.js App Structure
+```
+comparables-app/
+├── app/                    # Next.js App Router pages
+│   ├── layout.tsx         # Root layout
+│   ├── page.tsx           # Home page
+│   ├── comparables/       # Comparables report page
+│   └── comp-sets/         # Comp sets pages
+├── components/            # React components
+│   ├── PropertyCard.tsx
+│   ├── SummaryStats.tsx
+│   ├── CompSetToolbar.tsx
+│   └── Toast.tsx
+├── lib/                   # Utilities
+│   ├── types.ts          # TypeScript interfaces
+│   └── api.ts            # API client functions
+├── pages/api/            # API routes
+│   ├── comparables.ts
+│   └── comp-sets/
+└── styles/
+    └── globals.css       # Global styles
+```
 
 ---
 
-**Version:** 2.0  
-**Last Updated:** October 2024  
+**Version:** 3.0
+**Last Updated:** October 2024
 **Supported Property Types:** Multifamily, Office, Retail, Industrial, Mixed-Use
+**Tech Stack:** Next.js 14, React 18, TypeScript 5
