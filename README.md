@@ -22,7 +22,8 @@ Before using this recipe, ensure you have:
 
 | File/Folder | Description |
 |------|-------------|
-| `comparables_search.json` | Main recipe configuration file for Goose |
+| `start-here.json` | **START HERE** - Setup recipe (run once to install & start server) |
+| `comparables_search.json` | Main extraction recipe (extracts data from PDFs) |
 | `comparables-app/` | Next.js web application for viewing comparables |
 | `batch_processing_example.md` | Detailed usage guide and examples |
 | `output/` | Generated JSON data from extraction (gitignored) |
@@ -34,21 +35,24 @@ All generated JSON files are automatically saved to the `output/` folder. This f
 
 ## 🚀 Quick Start
 
-### 1. Start the Next.js App
-Before running any recipes, start the Next.js app:
+### 1. First-Time Setup (Run Once)
+Before extracting comparables for the first time, run the setup recipe to install dependencies and start the web server:
 
 ```bash
-cd comparables-app
-npm install
-npm run dev
+goose run start-here
 ```
 
-The app will start on **http://localhost:3001**
+This will:
+- Install Next.js dependencies
+- Start the web server on port 3001
+- Verify everything is working correctly
+
+**Note:** The web server will continue running in the background. You only need to run this setup recipe once (or if you need to restart the server).
 
 ### 2. Prepare Your PDFs
 Place all your Offering Memorandum PDF files in a known location.
 
-### 3. Run the Recipe
+### 3. Extract Comparables Data
 
 #### Single PDF
 Process one Offering Memorandum:
@@ -93,9 +97,15 @@ goose run search_comps --document_paths "C:\Documents\OM1.pdf,C:\Documents\OM2.p
 - Maximum recommended: 10-15 PDFs per batch for optimal performance
 
 ### 4. View Your Results
-After the recipe completes, open your browser to:
+After the extraction completes, open your browser to:
 - **Comparables Report:** http://localhost:3001/comparables
 - **Comp Sets Manager:** http://localhost:3001/comp-sets
+
+**Server Management:**
+- The server runs independently of the extraction recipe
+- To restart the server: `goose run start-here`
+- To stop the server: `lsof -ti :3001 | xargs kill`
+- To check if server is running: `lsof -ti :3001`
 
 ## 📊 What Gets Extracted
 
@@ -193,12 +203,18 @@ To keep properties from being lost:
 ## 🎯 Best Practices
 
 ### Workflow
-1. Start Next.js app (`cd comparables-app && npm run dev`)
-2. Run Goose recipe to extract data
+1. **First time only:** Run `goose run start-here` to setup and start the web server
+2. Run extraction recipe: `goose run search_comps --document_paths "..."`
 3. View results at http://localhost:3001/comparables
 4. **Save important properties to comp sets before running another extraction**
 5. Select properties and create comp sets as needed
 6. Manage comp sets at http://localhost:3001/comp-sets
+
+**Recipe Independence:**
+- `start-here` recipe: Sets up environment and starts web server (run once)
+- `search_comps` recipe: Extracts data from PDFs (run anytime, independent of server)
+- The extraction recipe works whether or not the web server is running
+- You'll need the web server running to VIEW results, but not to EXTRACT them
 
 ### File Organization
 ```
@@ -240,8 +256,18 @@ Average Processing Time: ~30 seconds per document
 - **Data Storage:** File-based JSON (comp_sets/, output/)
 - **Extraction:** Goose AI recipe with PDF reader
 
-## 🆕 Recent Updates (v3.0)
+## 🆕 Recent Updates
 
+### v3.2 (Current)
+- ✅ **Two-Recipe System:** Separated setup (`start-here`) from extraction (`search_comps`) for better reliability
+- ✅ **Independent Operation:** Extraction recipe now works independently of web server status
+- ✅ **Simplified Setup:** One-time setup recipe handles all dependencies and server startup
+- ✅ **Enhanced Troubleshooting:** Clear separation makes debugging easier
+
+### v3.1
+- ✅ Attempted automatic server management (replaced by v3.2 two-recipe approach)
+
+### v3.0
 - ✅ Migrated from static HTML to Next.js app
 - ✅ Added interactive comp set management
 - ✅ Implemented API routes for CRUD operations
@@ -252,13 +278,16 @@ Average Processing Time: ~30 seconds per document
 
 ## 📝 Notes
 
-- **Data Replacement:** Each recipe run replaces `comparables_data.json` - use comp sets to preserve data
+- **Two-Recipe System:** Run `start-here` once for setup, then use `search_comps` for all extractions
+- **Recipe Independence:** The extraction recipe works without the web server (server only needed to VIEW data)
+- **Data Replacement:** Each extraction replaces `comparables_data.json` - use comp sets to preserve data
+- **Server Persistence:** The web server continues running in the background until manually stopped
 - The subject property being marketed is NOT included in comparables
 - Rent values are captured as shown in documents (e.g., "$1,500/month", "$25/sf/year")
 - Properties can have 0 to many units (some may not list unit details)
-- The Next.js app must be running before you view results
 - Old HTML files are no longer generated by default
 - Comp sets are stored separately in `comp_sets/` and persist across recipe runs
+- Server logs are written to `/tmp/nextjs-comparables.log` for troubleshooting
 
 ## 🛠️ Development
 
@@ -288,6 +317,37 @@ comparables-app/
 ---
 
 ## 🔧 Troubleshooting
+
+### Setup Recipe (start-here) Issues
+
+**Problem:** Setup recipe fails or server won't start
+
+**Solutions:**
+```bash
+# 1. Check if port 3001 is in use by another application
+lsof -i :3001
+
+# 2. If another app is using port 3001, kill it
+lsof -ti :3001 | xargs kill
+
+# 3. Run the setup recipe again
+goose run start-here
+
+# 4. Check the server logs for detailed errors
+cat /tmp/nextjs-comparables.log
+
+# 5. If dependencies are missing, manually install
+cd comparables-app
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+**Common Causes:**
+- Port 3001 is in use by another application
+- Node.js version incompatibility (requires Node 18+)
+- npm not installed or outdated
+- Permission issues with `/tmp/nextjs-comparables.log`
 
 ### Next.js App Won't Start
 
@@ -376,7 +436,8 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ---
 
-**Version:** 3.0
-**Last Updated:** January 2025
+**Version:** 3.2
+**Last Updated:** October 2025
 **Supported Property Types:** Multifamily, Office, Retail, Industrial, Mixed-Use
 **Tech Stack:** Next.js 14, React 18, TypeScript 5
+**Key Feature:** Two-recipe system with independent setup and extraction recipes

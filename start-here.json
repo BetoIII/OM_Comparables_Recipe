@@ -1,0 +1,40 @@
+{
+  "version": "1.0.0",
+  "title": "OM Comparables Setup - Start Here",
+  "description": "First-time setup for the OM Comparables Recipe. Installs dependencies and starts the Next.js web server on port 3001.",
+  "instructions": "Set up the environment for viewing comparables data in the web application.",
+  "extensions": [
+    {
+      "name": "computercontroller",
+      "type": "builtin",
+      "display_name": "Computer Controller",
+      "timeout": 900,
+      "bundled": true,
+      "description": "Execute terminal commands and control the system"
+    },
+    {
+      "name": "developer",
+      "type": "builtin",
+      "display_name": "Developer",
+      "timeout": 900,
+      "bundled": true,
+      "description": "Read and analyze files, search codebase, and access project structure"
+    }
+  ],
+  "prompt": "TASK: Set up the OM Comparables Recipe environment for first-time use.\n\nGOAL: Install dependencies and launch the Next.js web server so the user can view comparables data.\n\nSTEPS:\n\n1. CHECK IF SERVER IS ALREADY RUNNING\n   - Run: lsof -ti :3001\n   - If a process ID is returned, the server is already running\n   - If already running, skip to Step 4 (success message)\n   - If not running, proceed to Step 2\n\n2. INSTALL DEPENDENCIES (if needed)\n   - Navigate to: cd /Users/betojuareziii/Applications/Goose\\ Recipes/OM_Comparables_Recipe/comparables-app\n   - Check if node_modules exists: ls -la node_modules 2>/dev/null\n   - If node_modules doesn't exist or is empty:\n     * Run: npm install\n     * Wait for installation to complete\n     * Verify success: check for node_modules folder and package-lock.json\n   - If node_modules exists and has content, skip npm install\n\n3. START THE NEXT.JS SERVER\n   - Navigate to: cd /Users/betojuareziii/Applications/Goose\\ Recipes/OM_Comparables_Recipe/comparables-app\n   - Start the server in the background: npm run dev > /tmp/nextjs-comparables.log 2>&1 &\n   - Wait 15 seconds for server initialization: sleep 15\n   - Verify the server is running:\n     * Test: curl -f http://localhost:3001 -o /dev/null -s -w \"%{http_code}\"\n     * Expected: 200 status code\n     * If connection refused, wait 5 more seconds and retry (max 3 retries)\n   - If server fails to start after retries:\n     * Report error: \"ERROR: Server failed to start. Check /tmp/nextjs-comparables.log for details\"\n     * Provide troubleshooting steps\n     * STOP here\n\n4. FINAL SUCCESS MESSAGE\n   Once the server is confirmed running, display this message:\n\n   ✅ Setup Complete!\n   \n   🌐 Next.js server is running on: http://localhost:3001\n   \n   You can now:\n   1. Run the comparables extraction recipe:\n      goose run search_comps --document_paths \"/path/to/document.pdf\"\n   \n   2. View your results in the browser:\n      - Comparables Report: http://localhost:3001/comparables\n      - Comp Sets Manager: http://localhost:3001/comp-sets\n   \n   📝 Notes:\n   - The server will continue running in the background\n   - Server logs are written to: /tmp/nextjs-comparables.log\n   - To stop the server: lsof -ti :3001 | xargs kill\n   - To restart the server: Run this recipe again or manually: cd comparables-app && npm run dev\n   \n   🎯 Next Step: Run the search_comps recipe to extract comparables from your PDF documents!\n\nERROR HANDLING:\n- If port 3001 is in use by another application, provide instructions to kill that process\n- If npm install fails, check Node.js version (requires 18+) and npm installation\n- If server won't start, direct user to check /tmp/nextjs-comparables.log for errors",
+  "parameters": [],
+  "settings": {
+    "temperature": 0.0
+  },
+  "retry": {
+    "max_retries": 2,
+    "timeout_seconds": 600,
+    "checks": [
+      {
+        "type": "shell",
+        "command": "lsof -ti :3001 > /dev/null 2>&1"
+      }
+    ],
+    "on_failure": "echo 'Setup failed. Server is not running on port 3001. Check /tmp/nextjs-comparables.log for errors.'"
+  }
+}
