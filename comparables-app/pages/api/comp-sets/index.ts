@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-const compSetsDir = path.join(process.cwd(), '..', 'comp_sets');
+const compSetsDir = path.join(process.cwd(), '..', 'output', 'comp_sets');
 
 // Ensure comp_sets directory exists
 if (!fs.existsSync(compSetsDir)) {

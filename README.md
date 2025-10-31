@@ -22,12 +22,11 @@ Before using this recipe, ensure you have:
 
 | File/Folder | Description |
 |------|-------------|
-| `start-here.json` | **START HERE** - Setup recipe (run once to install & start server) |
-| `comparables_search.json` | Main extraction recipe (extracts data from PDFs) |
-| `comparables-app/` | Next.js web application for viewing comparables |
+| `comparables_search.json` | **Main recipe** - Extracts comparable data from PDFs |
+| `comparables-app/` | Next.js web application for viewing comparables (optional) |
 | `batch_processing_example.md` | Detailed usage guide and examples |
-| `output/` | Generated JSON data from extraction (gitignored) |
-| `comp_sets/` | Saved comparable sets (gitignored - may contain personal data) |
+| `output/` | Generated files from extraction and saved comp sets (gitignored) |
+| `output/comp_sets/` | Saved comparable sets (may contain personal data) |
 | `README.md` | This file - quick reference guide |
 
 ### Output Folder
@@ -36,23 +35,36 @@ All generated JSON files are automatically saved to the `output/` folder. This f
 ## 🚀 Quick Start
 
 ### 1. First-Time Setup (Run Once)
-Before extracting comparables for the first time, run the setup recipe to install dependencies and start the web server:
+
+Before extracting comparables for the first time, install dependencies for the web application:
 
 ```bash
-goose run start-here
+cd comparables-app
+npm install
 ```
 
-This will:
-- Install Next.js dependencies
-- Start the web server on port 3001
-- Verify everything is working correctly
+### 2. Start the Web Server (Optional)
 
-**Note:** The web server will continue running in the background. You only need to run this setup recipe once (or if you need to restart the server).
+The web server is **optional** - you only need it if you want to:
+- View extracted comparables in a web interface
+- Create and manage comparable sets
+- Export data to Excel
 
-### 2. Prepare Your PDFs
-Place all your Offering Memorandum PDF files in a known location.
+To start the server:
 
-### 3. Extract Comparables Data
+```bash
+cd comparables-app
+npm run dev
+```
+
+The server will run on **http://localhost:3001**
+
+**Note:** Keep this terminal window open while using the web interface. Press `Ctrl+C` to stop the server when done.
+
+### 3. Prepare Your PDFs
+Place all your Offering Memorandum PDF files in a known location - you'll provide the paths to the extraction recipe.
+
+### 4. Extract Comparables Data
 
 #### Single PDF
 Process one Offering Memorandum:
@@ -101,11 +113,11 @@ After the extraction completes, open your browser to:
 - **Comparables Report:** http://localhost:3001/comparables
 - **Comp Sets Manager:** http://localhost:3001/comp-sets
 
-**Server Management:**
-- The server runs independently of the extraction recipe
-- To restart the server: `goose run start-here`
-- To stop the server: `lsof -ti :3001 | xargs kill`
-- To check if server is running: `lsof -ti :3001`
+**Web Server (Optional):**
+- The extraction recipe works without the web server
+- Start server: `cd comparables-app && npm run dev`
+- Stop server: Press `Ctrl+C` in the terminal running the server
+- Server URL: http://localhost:3001
 
 ## 📊 What Gets Extracted
 
@@ -116,54 +128,6 @@ For each comparable property found:
 - ✅ Unit mix details (type, sq ft, rent as shown)
 - ✅ Notes (amenities, occupancy, distance, etc.)
 - ✅ Source document reference
-
-## 🎨 Next.js App Features
-
-### Comparables Report Page (`/comparables`)
-- **Summary Dashboard** - Total properties, units, documents processed, avg year built
-- **Property Cards** - Each comparable in a clean, organized card
-- **Checkbox Selection** - Select multiple properties for comp sets
-- **Comp Set Toolbar** - Create new comp sets or add to existing ones
-- **Responsive Design** - Works on all devices
-- **Color Coding** - Property types have distinct colors
-- **Interactive Tables** - Unit mix data in clean tables
-- **Source Tracking** - See which OM each property came from
-
-### Comp Sets Manager (`/comp-sets`)
-- **List View** - See all your saved comp sets
-- **Detail View** - View individual comp sets with full property details
-- **Rename/Delete** - Manage comp set names
-- **Remove Properties** - Remove individual properties from comp sets
-- **Data Enrichment** - Automatically enriches comp set data with full property details
-
-## 📋 Property Card Contents
-
-Each card displays:
-```
-┌─────────────────────────────────────┐
-│ [✓] Checkbox         [Property Type]│
-│                                     │
-│ Property Name                       │
-│ Full Address                        │
-├─────────────────────────────────────┤
-│ Year Built: 2018                    │
-│ Total Units: 271                    │
-│ Total Square Feet: 245,000 SF       │
-├─────────────────────────────────────┤
-│ Unit Mix:                           │
-│ ┌──────────┬──────────┬──────────┐ │
-│ │ Unit Type│ Rent     │ Sq Ft    │ │
-│ ├──────────┼──────────┼──────────┤ │
-│ │ 1BR      │ $1,091/mo│ 646      │ │
-│ │ 2BR      │ $1,811/mo│ 1,213    │ │
-│ └──────────┴──────────┴──────────┘ │
-├─────────────────────────────────────┤
-│ Notes: Pool, Gym, 94% occupied,    │
-│ 2.8 mi from subject                 │
-├─────────────────────────────────────┤
-│ Source: OM - Property Name.pdf      │
-└─────────────────────────────────────┘
-```
 
 ## 🔍 Data Extraction Coverage
 
@@ -203,124 +167,36 @@ To keep properties from being lost:
 ## 🎯 Best Practices
 
 ### Workflow
-1. **First time only:** Run `goose run start-here` to setup and start the web server
-2. Run extraction recipe: `goose run search_comps --document_paths "..."`
-3. View results at http://localhost:3001/comparables
-4. **Save important properties to comp sets before running another extraction**
-5. Select properties and create comp sets as needed
-6. Manage comp sets at http://localhost:3001/comp-sets
+1. **First time only:** Install dependencies: `cd comparables-app && npm install`
+2. **Optional:** Start web server: `npm run dev` (in comparables-app directory)
+3. Run extraction recipe: `goose run search_comps --document_paths "..."`
+4. View results at http://localhost:3001/comparables (if server is running)
+5. **Save important properties to comp sets before running another extraction**
+6. Select properties and create comp sets as needed
+7. Manage comp sets at http://localhost:3001/comp-sets
 
 **Recipe Independence:**
-- `start-here` recipe: Sets up environment and starts web server (run once)
-- `search_comps` recipe: Extracts data from PDFs (run anytime, independent of server)
-- The extraction recipe works whether or not the web server is running
-- You'll need the web server running to VIEW results, but not to EXTRACT them
-
-### File Organization
-```
-/Project/
-  /OMs/
-    OM_Property_A.pdf
-    OM_Property_B.pdf
-    OM_Property_C.pdf
-  /output/
-    comparables_data.json
-  /comp_sets/
-    downtown-comps.json
-    suburban-comps.json
-  /comparables-app/
-    (Next.js application)
-```
-
-### Quality Checks
-- ✅ Verify all PDFs are readable
-- ✅ Check that PDFs contain comparable sections
-- ✅ Review the summary section for any issues
-- ✅ Validate unit counts and rent data in the app
-
-## 📈 Example Output Statistics
-
-```
-Total Documents Processed: 4
-Total Comparable Properties: 45
-Total Units Extracted: 156
-Property Types: Multifamily, Office, Mixed-Use
-Average Processing Time: ~30 seconds per document
-```
-
-## 🔧 Technology Stack
-
-- **Backend:** Next.js API Routes (replaces Express server)
-- **Frontend:** React with TypeScript
-- **Styling:** CSS modules with gradient design
-- **Data Storage:** File-based JSON (comp_sets/, output/)
-- **Extraction:** Goose AI recipe with PDF reader
-
-## 🆕 Recent Updates
-
-### v3.2 (Current)
-- ✅ **Two-Recipe System:** Separated setup (`start-here`) from extraction (`search_comps`) for better reliability
-- ✅ **Independent Operation:** Extraction recipe now works independently of web server status
-- ✅ **Simplified Setup:** One-time setup recipe handles all dependencies and server startup
-- ✅ **Enhanced Troubleshooting:** Clear separation makes debugging easier
-
-### v3.1
-- ✅ Attempted automatic server management (replaced by v3.2 two-recipe approach)
-
-### v3.0
-- ✅ Migrated from static HTML to Next.js app
-- ✅ Added interactive comp set management
-- ✅ Implemented API routes for CRUD operations
-- ✅ Simplified data schema (flat address, string-based rent)
-- ✅ Removed individual "Add" buttons in favor of checkbox-only workflow
-- ✅ Deprecated HTML generation (use Next.js app instead)
-- ✅ Added TypeScript for better type safety
+- The `search_comps` recipe works with or without the web server running
+- The web server is only needed to VIEW and MANAGE data via the web interface
+- Extracted data is always saved to `output/comparables_data.json` regardless
 
 ## 📝 Notes
 
-- **Two-Recipe System:** Run `start-here` once for setup, then use `search_comps` for all extractions
-- **Recipe Independence:** The extraction recipe works without the web server (server only needed to VIEW data)
+- **Web Server is Optional:** The extraction recipe works without the web server (server only needed to VIEW data)
 - **Data Replacement:** Each extraction replaces `comparables_data.json` - use comp sets to preserve data
 - **Server Persistence:** The web server continues running in the background until manually stopped
 - The subject property being marketed is NOT included in comparables
 - Rent values are captured as shown in documents (e.g., "$1,500/month", "$25/sf/year")
 - Properties can have 0 to many units (some may not list unit details)
 - Old HTML files are no longer generated by default
-- Comp sets are stored separately in `comp_sets/` and persist across recipe runs
+- Comp sets are stored in `output/comp_sets/` and persist across recipe runs
 - Server logs are written to `/tmp/nextjs-comparables.log` for troubleshooting
-
-## 🛠️ Development
-
-### Next.js App Structure
-```
-comparables-app/
-├── app/                    # Next.js App Router pages
-│   ├── layout.tsx         # Root layout
-│   ├── page.tsx           # Home page
-│   ├── comparables/       # Comparables report page
-│   └── comp-sets/         # Comp sets pages
-├── components/            # React components
-│   ├── PropertyCard.tsx
-│   ├── SummaryStats.tsx
-│   ├── CompSetToolbar.tsx
-│   └── Toast.tsx
-├── lib/                   # Utilities
-│   ├── types.ts          # TypeScript interfaces
-│   └── api.ts            # API client functions
-├── pages/api/            # API routes
-│   ├── comparables.ts
-│   └── comp-sets/
-└── styles/
-    └── globals.css       # Global styles
-```
-
----
 
 ## 🔧 Troubleshooting
 
-### Setup Recipe (start-here) Issues
+### Web Server Won't Start
 
-**Problem:** Setup recipe fails or server won't start
+**Problem:** Server fails to start or port 3001 is in use
 
 **Solutions:**
 ```bash
@@ -330,13 +206,11 @@ lsof -i :3001
 # 2. If another app is using port 3001, kill it
 lsof -ti :3001 | xargs kill
 
-# 3. Run the setup recipe again
-goose run start-here
+# 3. Try starting the server again
+cd comparables-app
+npm run dev
 
-# 4. Check the server logs for detailed errors
-cat /tmp/nextjs-comparables.log
-
-# 5. If dependencies are missing, manually install
+# 4. If dependencies are missing, reinstall
 cd comparables-app
 rm -rf node_modules package-lock.json
 npm install
@@ -346,6 +220,7 @@ npm run dev
 **Common Causes:**
 - Port 3001 is in use by another application
 - Node.js version incompatibility (requires Node 18+)
+- Missing or corrupted dependencies
 - npm not installed or outdated
 - Permission issues with `/tmp/nextjs-comparables.log`
 
@@ -391,7 +266,7 @@ kill -9 <PID>
 
 **Solutions:**
 1. Verify the Next.js app is running
-2. Check that `comp_sets/` folder exists and is writable
+2. Check that `output/comp_sets/` folder exists and is writable
 3. Look for errors in browser console
 4. Verify API route is accessible: `curl http://localhost:3001/api/comp-sets`
 
@@ -421,8 +296,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 💬 Support
 
 - **Issues:** Report bugs or request features via [GitHub Issues](https://github.com/BetoIII/OM_Comparables_Recipe/issues)
-- **Discussions:** Ask questions or share ideas in [GitHub Discussions](https://github.com/BetoIII/OM_Comparables_Recipe/discussions)
-- **Documentation:** Check the [batch_processing_example.md](batch_processing_example.md) for detailed examples
 
 ---
 
@@ -438,6 +311,3 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 **Version:** 3.2
 **Last Updated:** October 2025
-**Supported Property Types:** Multifamily, Office, Retail, Industrial, Mixed-Use
-**Tech Stack:** Next.js 14, React 18, TypeScript 5
-**Key Feature:** Two-recipe system with independent setup and extraction recipes

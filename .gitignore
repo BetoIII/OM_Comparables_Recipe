@@ -1,11 +1,8 @@
 # Dependencies
 node_modules/
 
-# Output files
+# Output files (includes comp_sets which may contain personal/private data)
 output/
-
-# Comparable sets (may contain personal/private data)
-comp_sets/
 
 # macOS system files
 .DS_Store

@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl:*)",
+      "Read(//Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe/**)",
+      "Read(//Users/betojuareziii/Applications/**)",
+      "Bash(cd:*)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe status)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe diff)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe log -5 --oneline)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe add README.md comparables_search.json start-here.json)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe commit -m \"$(cat <<''EOF''\nImplement two-recipe system for better reliability\n\nSplit functionality into separate recipes for improved user experience:\n- start-here.json: One-time setup and server management\n- comparables_search.json: Independent PDF extraction\n\nKey improvements:\n- Removed complex pre-flight checks from extraction recipe\n- Created dedicated setup recipe with dependency installation\n- Extraction now works independently of web server status\n- Simplified troubleshooting with clear separation of concerns\n- Updated documentation to reflect new workflow\n\n🤖 Generated with [Claude Code](https://claude.com/claude-code)\n\nCo-Authored-By: Claude <noreply@anthropic.com>\nEOF\n)\")",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe push)",
+      "Bash(lsof:*)",
+      "Bash(python3:*)",
+      "Bash(xargs kill:*)",
+      "Bash(test:*)",
+      "Bash(test -f:*)",
+      "Bash(echo:*)",
+      "WebFetch(domain:block.github.io)",
+      "Read(//Users/betojuareziii/**)",
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe add -A)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

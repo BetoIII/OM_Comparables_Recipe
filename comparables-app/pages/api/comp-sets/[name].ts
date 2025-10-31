@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next';
 import fs from 'fs';
 import path from 'path';
 
-const compSetsDir = path.join(process.cwd(), '..', 'comp_sets');
+const compSetsDir = path.join(process.cwd(), '..', 'output', 'comp_sets');
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { name } = req.query;
