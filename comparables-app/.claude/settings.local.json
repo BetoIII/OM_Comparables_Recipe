@@ -19,7 +19,9 @@
       "Bash(echo:*)",
       "WebFetch(domain:block.github.io)",
       "Read(//Users/betojuareziii/**)",
-      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe add -A)"
+      "Bash(git -C /Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe add -A)",
+      "Bash(git -C \"/Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe\" status)",
+      "Bash(git -C \"/Users/betojuareziii/Applications/Goose Recipes/OM_Comparables_Recipe\" add -A)"
     ],
     "deny": [],
     "ask": []

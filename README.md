@@ -22,7 +22,9 @@ Before using this recipe, ensure you have:
 
 | File/Folder | Description |
 |------|-------------|
-| `comparables_search.json` | **Main recipe** - Extracts comparable data from PDFs |
+| `comparables_search_json.json` | **JSON extraction recipe** - Extracts data to JSON format |
+| `comparables_search_csv.json` | **CSV extraction recipe** - Extracts data to CSV format |
+| `comparables_search_xls.json` | **Excel extraction recipe** - Extracts data to XLS format |
 | `comparables-app/` | Next.js web application for viewing comparables (optional) |
 | `batch_processing_example.md` | Detailed usage guide and examples |
 | `output/` | Generated files from extraction and saved comp sets (gitignored) |
@@ -66,58 +68,111 @@ Place all your Offering Memorandum PDF files in a known location - you'll provid
 
 ### 4. Extract Comparables Data
 
-#### Single PDF
-Process one Offering Memorandum:
+Choose the extraction format that works best for your workflow:
+
+#### Option 1: JSON Format (Recommended for Web App)
+Extract data to JSON format - required for web application viewing:
 
 ```bash
-goose run search_comps --document_paths "/path/to/OM_Downtown_Property.pdf"
+# Single PDF
+goose run comparables_search_json --document_paths "/path/to/OM_Downtown_Property.pdf"
+
+# Multiple PDFs (Batch Processing)
+goose run comparables_search_json --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf,/path/to/OM3.pdf"
 ```
 
-#### Multiple PDFs (Batch Processing)
-Process multiple OMs at once - separate paths with commas (no spaces):
+**Output:** `output/comparables_data.json`
+
+#### Option 2: CSV Format (Best for Analysis)
+Extract data to CSV format - ideal for Excel analysis or data processing:
 
 ```bash
-goose run search_comps --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf,/path/to/OM3.pdf"
+# Single PDF
+goose run comparables_search_csv --document_paths "/path/to/OM_Downtown_Property.pdf"
+
+# Multiple PDFs
+goose run comparables_search_csv --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf"
 ```
+
+**Output:**
+- `output/comparables_data.csv` (properties)
+- `output/comparables_data_units.csv` (unit details)
+- `output/comparables_data.json` (for web app)
+
+#### Option 3: Excel Format (Ready-Made Reports)
+Extract data to multi-sheet Excel workbook - perfect for professional reports:
+
+```bash
+# Single PDF
+goose run comparables_search_xls --document_paths "/path/to/OM_Downtown_Property.pdf"
+
+# Multiple PDFs
+goose run comparables_search_xls --document_paths "/path/to/OM1.pdf,/path/to/OM2.pdf"
+```
+
+**Output:**
+- `output/comparables_data.xlsx` (multi-sheet workbook)
+- `output/comparables_data.json` (for web app)
+
+**Which format should I choose?**
+- **JSON** - Use if you primarily work with the web application
+- **CSV** - Use for data analysis, importing to other tools, or database loading
+- **XLS** - Use for creating immediate professional reports or sharing with stakeholders
 
 #### Batch Processing Examples
 
-**Example 1: Process all OMs in a folder**
+**Example 1: Process all OMs in a folder (JSON)**
 ```bash
 # macOS/Linux
-goose run search_comps --document_paths "$(find ~/Documents/OMs -name '*.pdf' -type f | paste -sd ',' -)"
+goose run comparables_search_json --document_paths "$(find ~/Documents/OMs -name '*.pdf' -type f | paste -sd ',' -)"
 
 # Or manually list files in the same directory
-goose run search_comps --document_paths "/Users/yourname/Documents/OMs/Property_A_OM.pdf,/Users/yourname/Documents/OMs/Property_B_OM.pdf,/Users/yourname/Documents/OMs/Property_C_OM.pdf"
+goose run comparables_search_json --document_paths "/Users/yourname/Documents/OMs/Property_A_OM.pdf,/Users/yourname/Documents/OMs/Property_B_OM.pdf,/Users/yourname/Documents/OMs/Property_C_OM.pdf"
 ```
 
-**Example 2: Process OMs from different locations**
+**Example 2: Process OMs to CSV for analysis**
 ```bash
-goose run search_comps --document_paths "/Users/yourname/Desktop/OM_Austin.pdf,/Users/yourname/Downloads/OM_Dallas.pdf,/Users/yourname/Documents/Projects/OM_Houston.pdf"
+goose run comparables_search_csv --document_paths "/Users/yourname/Desktop/OM_Austin.pdf,/Users/yourname/Downloads/OM_Dallas.pdf,/Users/yourname/Documents/Projects/OM_Houston.pdf"
 ```
 
-**Example 3: Windows batch processing**
+**Example 3: Windows batch processing to Excel**
 ```bash
 # Windows (PowerShell)
-goose run search_comps --document_paths "C:\Documents\OM1.pdf,C:\Documents\OM2.pdf,C:\Documents\OM3.pdf"
+goose run comparables_search_xls --document_paths "C:\Documents\OM1.pdf,C:\Documents\OM2.pdf,C:\Documents\OM3.pdf"
 ```
 
 **Tips for batch processing:**
 - All PDFs will be processed in a single run
-- Results are combined into one `comparables_data.json` file
+- Results are combined into one output file (JSON, CSV, or XLS)
+- All three formats also create a JSON file for web app compatibility
 - Processing time: ~30 seconds per PDF
 - Maximum recommended: 10-15 PDFs per batch for optimal performance
 
-### 4. View Your Results
-After the extraction completes, open your browser to:
+### 5. View Your Results
+
+#### Web Application (JSON data only)
+After running any extraction recipe, open your browser to:
 - **Comparables Report:** http://localhost:3001/comparables
 - **Comp Sets Manager:** http://localhost:3001/comp-sets
 
+**Export Options in Web App:**
+- **Export CSV** - Download current data as CSV
+- **Export XLS** - Download current data as Excel workbook
+- Both options available regardless of extraction method used
+
 **Web Server (Optional):**
-- The extraction recipe works without the web server
+- The extraction recipes work without the web server
+- Web server only reads from `comparables_data.json`
+- All three extraction formats create this JSON file automatically
 - Start server: `cd comparables-app && npm run dev`
 - Stop server: Press `Ctrl+C` in the terminal running the server
 - Server URL: http://localhost:3001
+
+#### Direct File Access (CSV/XLS)
+If you used CSV or XLS extraction:
+- **CSV files:** Open `output/comparables_data.csv` and `output/comparables_data_units.csv` directly
+- **Excel file:** Open `output/comparables_data.xlsx` directly
+- No web server needed for these formats
 
 ## 📊 What Gets Extracted
 
@@ -169,26 +224,36 @@ To keep properties from being lost:
 ### Workflow
 1. **First time only:** Install dependencies: `cd comparables-app && npm install`
 2. **Optional:** Start web server: `npm run dev` (in comparables-app directory)
-3. Run extraction recipe: `goose run search_comps --document_paths "..."`
-4. View results at http://localhost:3001/comparables (if server is running)
+3. **Choose and run extraction recipe:**
+   - JSON: `goose run comparables_search_json --document_paths "..."`
+   - CSV: `goose run comparables_search_csv --document_paths "..."`
+   - XLS: `goose run comparables_search_xls --document_paths "..."`
+4. **View results:**
+   - Web app: http://localhost:3001/comparables (if server is running)
+   - Direct files: Open CSV/XLS files from `output/` folder
 5. **Save important properties to comp sets before running another extraction**
 6. Select properties and create comp sets as needed
 7. Manage comp sets at http://localhost:3001/comp-sets
 
 **Recipe Independence:**
-- The `search_comps` recipe works with or without the web server running
+- All three extraction recipes work with or without the web server running
 - The web server is only needed to VIEW and MANAGE data via the web interface
-- Extracted data is always saved to `output/comparables_data.json` regardless
+- All extraction methods create `output/comparables_data.json` for web app compatibility
+- CSV and XLS recipes also create their respective format files
 
 ## 📝 Notes
 
-- **Web Server is Optional:** The extraction recipe works without the web server (server only needed to VIEW data)
-- **Data Replacement:** Each extraction replaces `comparables_data.json` - use comp sets to preserve data
+- **Three Extraction Formats:** Choose JSON, CSV, or XLS based on your needs
+- **Web Server is Optional:** All extraction recipes work without the web server (server only needed to VIEW data)
+- **Data Replacement:** Each extraction replaces output files - use comp sets to preserve data
+- **Format Compatibility:** All three recipes create `comparables_data.json` for web app access
+- **CSV Structure:** Two files created - properties and units (linked by property_name)
+- **Excel Structure:** Multi-sheet workbook (Summary, Properties, Unit Details)
 - **Server Persistence:** The web server continues running in the background until manually stopped
+- **Export from Web App:** CSV and XLS exports available directly from web interface
 - The subject property being marketed is NOT included in comparables
 - Rent values are captured as shown in documents (e.g., "$1,500/month", "$25/sf/year")
 - Properties can have 0 to many units (some may not list unit details)
-- Old HTML files are no longer generated by default
 - Comp sets are stored in `output/comp_sets/` and persist across recipe runs
 - Server logs are written to `/tmp/nextjs-comparables.log` for troubleshooting
 
@@ -245,8 +310,11 @@ kill -9 <PID>
 **Problem:** Comparables page shows "No data available"
 
 **Solutions:**
-1. Verify you've run the recipe: `goose run search_comps --document_paths "..."`
-2. Check that `output/comparables_data.json` exists
+1. Verify you've run an extraction recipe:
+   - `goose run comparables_search_json --document_paths "..."`
+   - or `goose run comparables_search_csv --document_paths "..."`
+   - or `goose run comparables_search_xls --document_paths "..."`
+2. Check that `output/comparables_data.json` exists (all recipes create this)
 3. Verify the Next.js app is looking in the correct directory
 4. Check browser console for API errors
 
@@ -309,5 +377,21 @@ Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for gui
 
 ---
 
-**Version:** 3.2
+## 📦 Output Formats Summary
+
+| Format | Files Created | Best For | Web App Compatible |
+|--------|--------------|----------|-------------------|
+| **JSON** | `comparables_data.json` | Web application use, API integration | ✅ Yes (primary) |
+| **CSV** | `comparables_data.csv`<br>`comparables_data_units.csv`<br>`comparables_data.json` | Data analysis, Excel import, database loading | ✅ Yes |
+| **XLS** | `comparables_data.xlsx`<br>`comparables_data.json` | Professional reports, immediate sharing | ✅ Yes |
+
+**All formats support:**
+- Batch processing multiple PDFs
+- Same extraction schema and data quality
+- Export options from web interface
+- Comp set management
+
+---
+
+**Version:** 4.0
 **Last Updated:** October 2025

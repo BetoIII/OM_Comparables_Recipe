@@ -90,6 +90,52 @@ export default function ComparablesPage() {
     }
   };
 
+  const handleExportToCSV = async () => {
+    try {
+      const response = await fetch('/api/export/csv');
+      if (!response.ok) {
+        throw new Error('Failed to generate CSV export');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `comparables_data_${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      showSuccess('Exported to CSV successfully');
+    } catch (err: any) {
+      showError(err.message || 'Failed to export to CSV');
+    }
+  };
+
+  const handleExportToServerXLS = async () => {
+    try {
+      const response = await fetch('/api/export/xls');
+      if (!response.ok) {
+        throw new Error('Failed to generate XLS export');
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `comparables_data_${new Date().toISOString().split('T')[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      showSuccess('Exported to XLS successfully');
+    } catch (err: any) {
+      showError(err.message || 'Failed to export to XLS');
+    }
+  };
+
   if (loading) {
     return (
       <div className="container" style={{ paddingTop: '40px' }}>
@@ -188,15 +234,30 @@ export default function ComparablesPage() {
         <div className="header">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
             <h1 style={{ marginBottom: 0 }}>Comparable Properties Report</h1>
-            <button
-              className="comp-button export-button"
-              onClick={handleExportToXLS}
-              style={{
-                background: '#10b981',
-              }}
-            >
-              📊 Export to XLS
-            </button>
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                className="comp-button export-button"
+                onClick={handleExportToCSV}
+                style={{
+                  background: '#3b82f6',
+                  padding: '8px 16px',
+                  fontSize: '14px'
+                }}
+              >
+                📄 Export CSV
+              </button>
+              <button
+                className="comp-button export-button"
+                onClick={handleExportToServerXLS}
+                style={{
+                  background: '#10b981',
+                  padding: '8px 16px',
+                  fontSize: '14px'
+                }}
+              >
+                📊 Export XLS
+              </button>
+            </div>
           </div>
           {data.summary.documents_processed && data.summary.documents_processed.length > 0 && (
             <div style={{

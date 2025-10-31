@@ -1,0 +1,166 @@
+{
+  "version": "1.0.0",
+  "title": "Commercial Real Estate OM Comparables Extraction (XLS)",
+  "description": "Extract market comparable properties from Offering Memorandum documents and export to Excel format. Outputs multi-sheet workbook: comparables_data.xlsx with Summary, Properties, and Units sheets. View at http://localhost:3001/comparables",
+  "instructions": "Extract comparable properties from Offering Memorandum PDFs and export to Excel format. Process each PDF, find the comparables section, extract property and unit data, and REPLACE (not merge) the contents of output/comparables_data.xlsx. View the results in the Next.js app (comparables-app) running on port 3001.",
+  "extensions": [
+    {
+      "name": "developer",
+      "type": "builtin",
+      "display_name": "Developer",
+      "timeout": 900,
+      "bundled": true,
+      "description": "Read and analyze files, search codebase, and access project structure"
+    },
+    {
+      "name": "pdfreader",
+      "type": "stdio",
+      "cmd": "uvx mcp-read-pdf",
+      "args": [],
+      "timeout": 900,
+      "description": "Read large and complex PDF documents"
+    },
+    {
+      "name": "todo",
+      "type": "builtin",
+      "display_name": "To-Do",
+      "timeout": 300,
+      "bundled": true,
+      "description": "Track task progress and manage to-do lists"
+    }
+  ],
+  "prompt": "TASK: Extract comparable properties from commercial real estate Offering Memorandum PDFs and export to Excel format.\n\nDOCUMENTS: {{ document_paths }}\n\nIMPORTANT: This extraction will REPLACE any existing XLS file in output/. Each run represents a fresh set of comparables from the latest documents.\n\nSTEPS:\n\n1. READ EACH PDF\n   - Use pdfreader extension to read the PDF content\n\n2. FIND COMPARABLES SECTION\n   - Look for: 'Market Comparables', 'Competitive Set', 'Comparable Properties', 'Market Analysis', 'Rent Comparables', 'Market Survey'\n   - Skip the subject property (the one being marketed)\n\n3. EXTRACT CORE DATA (required for each property):\n   - property_name\n   - full_address (as single string)\n   - basic_info object:\n     * property_type (required: Multifamily, Office, Retail, etc.)\n     * total_units (if shown)\n     * total_square_feet (if shown)\n     * year_built (if shown)\n     * year_renovated (if shown)\n     * occupancy_rate (if shown, as percentage 0-100)\n   - source_document (filename)\n\n4. ADD OPTIONAL DATA (if easily found):\n   - distance_from_subject: distance from subject property (e.g., '0.5 miles', '2 blocks')\n   - units_detail array: unit_type, square_feet, rent (as shown: '$1,500/month', '$25/sf/year', etc.)\n   - notes: any other info (amenities, etc.)\n\n5. CREATE EXCEL WORKBOOK: output/comparables_data.xlsx\n   \n   Use Node.js with the 'xlsx' library (already installed in comparables-app/node_modules):\n   \n   ```javascript\n   const XLSX = require('xlsx');\n   const fs = require('fs');\n   const path = require('path');\n   \n   // Create workbook\n   const wb = XLSX.utils.book_new();\n   \n   // SHEET 1: Summary\n   const summaryData = [\n     ['Extraction Summary'],\n     ['Total Properties', totalProperties],\n     ['Documents Processed', documentsProcessed.join(', ')],\n     ['Generated', new Date().toLocaleDateString()]\n   ];\n   const summarySheet = XLSX.utils.aoa_to_sheet(summaryData);\n   XLSX.utils.book_append_sheet(wb, summarySheet, 'Summary');\n   \n   // SHEET 2: Properties\n   const propertiesData = [\n     ['Property Name', 'Address', 'Property Type', 'Total Units', 'Total SF', 'Year Built', 'Year Renovated', 'Occupancy %', 'Distance', 'Notes', 'Source']\n   ];\n   \n   properties.forEach(prop => {\n     propertiesData.push([\n       prop.property_name,\n       prop.full_address,\n       prop.basic_info.property_type,\n       prop.basic_info.total_units || '',\n       prop.basic_info.total_square_feet || '',\n       prop.basic_info.year_built || '',\n       prop.basic_info.year_renovated || '',\n       prop.basic_info.occupancy_rate || '',\n       prop.distance_from_subject || '',\n       prop.notes || '',\n       prop.source_document\n     ]);\n   });\n   \n   const propertiesSheet = XLSX.utils.aoa_to_sheet(propertiesData);\n   XLSX.utils.book_append_sheet(wb, propertiesSheet, 'Properties');\n   \n   // SHEET 3: Unit Details (if any)\n   const unitsData = [['Property Name', 'Unit Type', 'Square Feet', 'Rent']];\n   \n   properties.forEach(prop => {\n     if (prop.units_detail && prop.units_detail.length > 0) {\n       prop.units_detail.forEach(unit => {\n         unitsData.push([\n           prop.property_name,\n           unit.unit_type,\n           unit.square_feet || '',\n           unit.rent || ''\n         ]);\n       });\n     }\n   });\n   \n   const unitsSheet = XLSX.utils.aoa_to_sheet(unitsData);\n   XLSX.utils.book_append_sheet(wb, unitsSheet, 'Unit Details');\n   \n   // Write file\n   const outputPath = path.join(process.cwd(), '..', 'output', 'comparables_data.xlsx');\n   XLSX.writeFile(wb, outputPath);\n   ```\n   \n   Format notes:\n   - Include header rows in all sheets\n   - Format numbers with commas (use number formatting)\n   - Format percentages with % symbol\n   - Empty cells for null/missing values\n\n6. ALSO CREATE JSON FILE\n   - Create output/comparables_data.json with the same data\n   - This ensures web server can still read the data\n   - Use same JSON structure as comparables_search_json.json recipe\n\n7. FINAL OUTPUT MESSAGE\n   After completing the extraction, display this message to the user:\n\n   ✅ Comparables extraction complete (Excel format)!\n   📊 Data saved to:\n      - output/comparables_data.xlsx (multi-sheet workbook)\n      - output/comparables_data.json (for web app)\n   \n   Workbook sheets:\n   - Summary: Extraction metadata\n   - Properties: All property details\n   - Unit Details: Individual unit information\n   \n   View your results in the Next.js app:\n   http://localhost:3001/comparables\n   \n   (If the Next.js app isn't running, run: goose run start-here)\n   \n   💡 Tip: Use the comp set management tools in the app to save properties you want to keep before running another extraction.\n\nFOCUS: Get the core fields first. Add optional fields only if clearly visible. Don't spend time searching for missing data.",
+  "response": {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "properties": {
+      "comparable_properties": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "property_name": {
+              "type": "string",
+              "description": "Name of the comparable property"
+            },
+            "full_address": {
+              "type": "string",
+              "description": "Complete address as a single string (e.g., '123 Main St, Austin, TX 78701')"
+            },
+            "basic_info": {
+              "type": "object",
+              "properties": {
+                "property_type": {
+                  "type": "string",
+                  "description": "Type of property (e.g., 'Multifamily', 'Office', 'Retail')"
+                },
+                "total_units": {
+                  "type": ["integer", "null"],
+                  "description": "Total number of units/spaces"
+                },
+                "total_square_feet": {
+                  "type": ["number", "null"],
+                  "description": "Total square footage"
+                },
+                "year_built": {
+                  "type": ["integer", "null"],
+                  "description": "Year constructed"
+                },
+                "year_renovated": {
+                  "type": ["integer", "null"],
+                  "description": "Year of last major renovation if applicable"
+                },
+                "occupancy_rate": {
+                  "type": ["number", "null"],
+                  "description": "Occupancy rate as a percentage (0-100)"
+                }
+              },
+              "required": ["property_type"],
+              "description": "Core property information"
+            },
+            "distance_from_subject": {
+              "type": ["string", "null"],
+              "description": "Distance from the subject property (e.g., '0.5 miles', '2 blocks')"
+            },
+            "units_detail": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "unit_type": {
+                    "type": "string",
+                    "description": "Unit type (e.g., 'Studio', '1BR/1BA', '2BR/2BA')"
+                  },
+                  "square_feet": {
+                    "type": ["number", "null"],
+                    "description": "Square footage"
+                  },
+                  "rent": {
+                    "type": ["string", "null"],
+                    "description": "Rent as shown in document (e.g., '$1,500/month', '$18,000/year', '$2.50/sf/month')"
+                  }
+                },
+                "required": ["unit_type"],
+                "description": "Unit information if available"
+              },
+              "description": "Optional: List of unit types (include if data is available)"
+            },
+            "notes": {
+              "type": ["string", "null"],
+              "description": "Optional: Any additional info (amenities, occupancy, distance, etc.)"
+            },
+            "source_document": {
+              "type": "string",
+              "description": "Filename of the source OM document"
+            }
+          },
+          "required": ["property_name", "full_address", "basic_info", "source_document"],
+          "description": "A comparable property with core required fields and optional enrichment"
+        },
+        "description": "Array of comparable properties"
+      },
+      "summary": {
+        "type": "object",
+        "properties": {
+          "total_properties": {
+            "type": "integer",
+            "description": "Total number of comparable properties extracted"
+          },
+          "documents_processed": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "List of source document filenames processed"
+          }
+        },
+        "required": ["total_properties", "documents_processed"],
+        "description": "Simple summary statistics"
+      }
+    },
+    "required": ["comparable_properties", "summary"],
+    "additionalProperties": false
+  },
+  "parameters": [
+    {
+      "key": "document_paths",
+      "description": "Array of file paths to the Offering Memorandum PDF documents to process (e.g. /path/to/document1.pdf, /path/to/document2.pdf)",
+      "input_type": "string",
+      "requirement": "required"
+    }
+  ],
+  "settings": {
+    "temperature": 0.0
+  },
+  "retry": {
+    "max_retries": 3,
+    "timeout_seconds": 300,
+    "checks": [
+      {
+        "type": "shell",
+        "command": "test -f output/comparables_data.xlsx && test -s output/comparables_data.xlsx && test -f output/comparables_data.json && test -s output/comparables_data.json"
+      }
+    ],
+    "on_failure": "echo 'Retry failed. Missing or empty XLS or JSON output files.'"
+  }
+}
